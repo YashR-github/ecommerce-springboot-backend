@@ -11,7 +11,9 @@ src/main/resources/application-*.properties
 *.key
 *.pem
 
-/ecommerce/Overview\ of\ Changes
+#Remove personal rough note files
+/com.example.ecommerce_springboot/Overview\ of\ Changes
+/auth/Testing\ issues
 
 # Gradle
 /build/
