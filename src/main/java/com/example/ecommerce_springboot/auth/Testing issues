@@ -1,0 +1,48 @@
+
+
+NOT_WORKING:
+1) The min-check for user password from controller side didnt work even though password size was 2
+
+//TODO- add handler for controller validation given by gpt
+
+2) When login is done using only email and password, giving generic 500 error instead of logging in
+
+
+3) Not a big issue:
+{
+       "message": "An unexpected error occurred",
+       "data": {
+           "path": "/tasks/1/start",
+           "details": "Task with task id : \"1\" is already logged as Started.",
+           "error": "Task Already marked as Started.",
+           "timestamp": "2025-08-06T15:03:56.4703001",
+           "status": 409
+       }
+   }
+   when old jwt of deleted user passed for marking start task for id=1, most probably happening because the data of the user deleted was same as the new one,
+   solution might be to check how to invalidate the old token having same dataof the new user from the old user.
+
+
+
+
+WORKING:
+1) RE signup of same user gives error, but status can be improved currently 500- Improved now.
+2)
+
+
+
+
+
+
+
+
+
+
+
+
+Solved:
+1) Re signup gives error code 500, should be-- Solved,
+Solution- added @Order(Ordered.HIGHEST_PRECEDENCE) in the user's controller advice
+
+2) After login,token not being sent to header section--Solved
+Solution - Return type response entity format issue in controller

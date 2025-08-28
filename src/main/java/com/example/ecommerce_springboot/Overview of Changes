@@ -1,0 +1,335 @@
+
+(Self-changes)
+1)Adding Inventory, Cart, Order,User and Payment integration
+2)Admin specific apis for self product service like product crud and inventory check, and customer specific
+apis like addTOCart, moveToOrder , makePayment etc
+3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+Implementing Redis:
+
+    1. SETUP: (Install Redis)- The open source redis installed here uses docker ans wsl2 (windows subsytem for linux version 2) to manage redis
+    installation inside a docker container  instead of  own server (ram) , this enables easier setup, avoid complex issues
+    with own system setup and also allows running  multiple instances of redis if required using docker. In RedisTemplateConfig
+    file in project we define the configuration to connect/interact with the redis that is running in docker on a different
+    server so that our application can use this redis .
+               Q)Why do we need docker or wsl2?
+                -- 1. Redis is a Linux-native service
+                   2.Installing Redis natively on Windows is complex and buggy
+                   3.Docker with the help of wsl2 makes it 1-line install with no system pollution
+                   4.You can run multiple isolated Redis versions if needed
+            [cmd commands used for installing Docker and Redis ]:
+                   1.Install docker:   winget install --id Docker.DockerDesktop -e
+                   2.Update wsl : wsl --update
+                   3. (Open Docker desktop for keeping it in running state for enabling connection)
+                   4. docker run -d --name redis -p 6379:6379 redis (creates redis instance in the docker container)
+
+    2. Add dependencies in pom(can either add 2 dependencies spring-data-redis and jedis or 1 Single dependency instead as spring-boot-starter-data-redis handled by springboot)
+    3. Created RedisTemplateConfig configuration class.
+    4. In FakeStoreService class modified getSingleProduct method by using Redis implementation for faster api response from service.
+       Now service instead of calling FakeStore will call redis and get much faster response.
+    (Example of Redis implementation):
+       1. Before service calls db, service will first check if the key value exist in the Redis or not.
+        If Yes (Cache HIT): It will directly fetch from Redis and return to the controller
+        If No (Cache MISS): It will fetch from Redis, then the same will be fetched from DB instead and returned to controller.Also it will be stored(cached)
+                           (ie updating LRU) in Redis for future use , which is handled by SpringBoot.
+                           When there's a cache miss, Spring Boot:
+                           a)Fetches the data from the DB
+                           b)Stores it in Redis via the cache abstraction (like @Cacheable)
+
+                        Redis itself does not know about the DB or how to fetch data — it just stores key-value pairs.
+                           🔹 Redis = passive cache store
+                           🔹 Spring Boot = active logic that puts data into Redis
+
+           Cache eviction: Cache eviction is the process of removing old or less-used data from the cache(Redis) to free up space for new entries.
+                           It follows specific policies like LRU (Least Recently Used), LFU (Least Frequently Used), or FIFO.
+                           Extrainfo- Cache eviction is handled by Redis itself based on its configured eviction policy (e.g., LRU, TTL, etc.).
+                           However, Spring Boot can control eviction by explicitly setting TTL (time-to-live) or using annotations like @CacheEvict for manual or conditional eviction logic.
+       * By default, caching is 'Synchronous'.
+        After a DB fetch, Spring Boot will store the data in Redis first, then return the response to the controller.
+        So yes — the service waits until Redis is updated before responding.
+            🔸 This ensures consistency but adds slight latency.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Pagination,Sorting, Searching :
+
+Added in Category model:
+@JsonIgnore  --> Annotation above this field to avoid cyclic dependency in the json response (Category having list of products
+                and Product having category field.)
+@OneToMany(mappedBy = "category",fetch = FetchType.LAZY)
+ private List<Product> products;
+
+
+// Implemented GetAll method for returning Paginated results
+    @Override
+    public Page<Product> getAllProductsByPage(int pageNumber, int pageSize, String fieldName){
+         //PageRequest's of method uses pagination values like pageNumber,pageSize and sorting order
+        // and  PageRequest.of() returns "Pageable" object
+        Page<Product> products= productRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(fieldName).ascending())) ;
+        return products;
+    }
+
+
+
+ Note this project is not:
+ 1) Checked in output implementation using postman, as AWS based issue is still not resolved.
+ 2) Need to implement using fake store implementation as well. (Self Research)
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+Integrating Stripe Payment Gateway:
+1 Created PaymentController, PaymentRequestDto, PaymentService interface and StripePaymentGateImpl service implementation.
+2. Added directly stripe maven dependency in pom .As stripe is famous maven makes it easy to integrate stripe as dependency.
+3.
+
+
+Required actions to do:
+1. Crate account on stripe , get key
+2. Do the process of getting the url using the key in url inservice layer method
+3.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------------
+   Earlier, we connected AWS datasource from intellij, but the db was not created in aws rds, in order to store and
+retrieve data, db has to be created inside the RDS. Also code needs to be deployed in the AWS ElasticBeanStalk(EBS)
+in order to allow the api's to be accessed not just from the local server , but also globally.
+
+Steps to create DB in AWS RDS using intellij :
+1.After connecting with rds data source, configure it in application.properties as well:
+  spring.datasource.url=jdbc:mysql://aws-db.cbc86ayumlgd.eu-north-1.rds.amazonaws.com:3306/EcommerceDb
+  spring.datasource.username=AwsMaster
+  spring.datasource.password=XP#u7v59
+  In url , only in place of localhost, write the aws endpoint.
+  Important Note: The Db name at the end should match exactly as the created db inside RDS below.
+2. In intellij, open Database->Select the Aws data source->Jump to Query console-> Default query console
+ Now a query console will open.
+3. In query console paste command to create the db named EcommerceDb :
+   create database EcommerceDb;
+   Now, Run the query.
+   Output: [2025-06-08 17:07:53] Connected
+           > create database EcommerceDb
+           [2025-06-08 17:07:55] 1 row affected in 800 ms
+           will be displayed in output console
+   Can also check all DBs in aws rds using query : Show databases;
+   Note: The DB created has exact name as the application.properties db name
+   Reload maven once.
+4. After running the application, hitting url for create like http://localhost:8080/products for POST,
+with Body like:
+   {
+       "title":"Banana",
+       "imageUrl":"https://comeonman.com",
+       "description": " AWS EcommerceDb Product ",
+       "price": 15.2,
+       "category":{
+           "title": "DailyEssentials"
+       }
+   }
+   Output status : 200ok will be received with output json body including Product details along with id assigned.
+   This product will be created inside EcommerceDb inside AWS RDS.
+   Same can be fetched using get single product api: http://localhost:8080/products/{id}  to confirm
+   Also to check the db product table for created products , run query like:
+   select * from EcommerceDb.product; to get the table product with created products list
+
+Now, although the data is being sent and received via AWS, others cant access the APIs since the code is not running on
+cloud, it is running on local server. So we will now use AWS EBS to deploy and run code on cloud ie AWS server.
+
+Steps to upload code to EBS:
+1. Instead of uploading code file by file, we ideally create jar and war package of the entire code and submit of EBS.
+2. Creating package:
+      1) Click on the top where application name exist (called as Run/Debug configuration)--> Click Edit configurations,
+       (A dialog box will appear)
+      2) Click on + icon on top left corner to Add New Configuration and from list click on "Maven"
+      3) Now on the right side of dialog box in Run (Command line): select 'clean' then again 'install' to see 'clean install'
+         in the command line.
+      4) Now click OK and close the dialog box.
+      5)Click again on top application name(Run/Debug console), in list a new application name with [clean,install]
+      will appear. Click on it. Now Run the application. Intellij will now create a jar file inside target folder.
+3. Now before uploading the jar file in the EBS, we have to create 2 IAM roles with specific permissions:
+     1) Eg name: AwsEbsServiceRole (2 permissions)
+       Permissions: AWSElasticBeanstalkService, AWSElasticBeanstalkEnhancedHealth
+
+     2) Eg name: AwsEbsEc2RoleInstanceProfile (3 permissions)  [created AwsEBS-EC2RoleInstanceProfile]
+       Permissions: AWSElasticBeanstalkMulticontainerDocker, AWSElasticBeanstalkWebTier, AWSElasticBeanstalkWorkerTier
+
+In EBS creation configuration in Aws, Add below environment properties:
+Name                  Value
+port                   8080
+RDS_HOSTNAME         (Add Rds endpoint)
+RDS_PORT               3306
+RDS_DB_NAME           (DB NAME CREATED IN RDS-EcommerceDB)
+RDS_USERNAME           (Master username)AwsMaster
+RDS_PASSWORD            (Master Password) XP#u7v59
+
+
+Created AWS EBS provided domain:  ecommerce-springapp.ap-south-1.elasticbeanstalk.com
+Environment ID:  e-hgptveamqs
+Application name : Ecommerce_SpringApplication
+
+for API checks use domain+ :8080/+(api_url)
+--> ecommerce-springapp.ap-south-1.elasticbeanstalk.com:8080/products/2  (get product id=2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------
+Added Flyway migration:
+1. Added dependencies in pom, configuration in application.properties for flyway
+2. Dropped all tables from db for fresh start by the flyway
+3. Using View-> Tool windows--> Persistence. Right clicked bottom left (Persistence area) on the  ECommerce-FakeStore_SpringImplementation-->New
+   Selected Flyway Init Migration.
+4. Run the program and refresh maven projects to see the new schema generated in the database again, also can see the new file version V1_.sql
+   added in migration package in the code files.
+5. Any changes now done to the models will be recorded and one can extract the migration history version using 'Create flyway versioned migration',
+   Select Source(the actual state of the model) as Model and Target(The previous state of the model) as Database(DB) click ok and save. Then after running
+   the program , refresh maven to get the changes in db in intellij and  new version file created having sql query for the db changes done in the new version.
+
+
+
+
+
+Also connected AWS RDS to the code as data source:
+1. Created aws account and configured free rds and created rds mysql instance in aws.
+2. Got the Endpoint of AWS RDS from connectivity settings : aws-db.cbc86ayumlgd.eu-north-1.rds.amazonaws.com
+3. Faced lot of challenge in connecting rds to intellij , mainly because of security firewall from aws side, so had to add
+   custom inbound rule for the security group allowing My IP to connect with aws. Outbound rule is not needed.
+4. In intellij added new data source and in url pasted above endpoint, in user and password used
+  AWS master username: AwsMaster
+  and rds password: XP#u7v59
+5. Finally connected successfully to aws rds from intellij.
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+Changes done after FakeStore implementation:
+1. Now created own db intead of fetching from fakestore
+2. Connected with own mysql db using dependencies, changes in application.properties including username and
+    password details etc
+3. Created Repositories for models extending JpaRepository to allow Jpa implementation(Hibernate) to handle all queries and db operations.
+4. Added few custom query methods as well in Repositories.
+5. Create SelfProductService which implemented same ProductService interface.
+6. Added logic in methods for crud operations over the db
+7. Gave seperate names to service classes to inject correct service class in the controller. (using qualifier)
+8. Told the ProductController to consider adding SelfProductService qualifier in constructor ofProductController instead
+    of FakeStoreProductService for implementation.
+   If required for Fakestore can change qualifier to FakeStoreProductService or add another qualifier in the same constructor
+   for different service. As explained below:
+
+  // Explaination:
+   ### To Support **Multiple Implementations** in a Single Controller
+   If your controller needs to interact with **both** implementations, you can inject them both as separate arguments:
+   ```
+   public ProductController(
+       @Qualifier("SelfProductService") ProductService selfProductService,
+       @Qualifier("FakeStoreProductService") ProductService fakeStoreProductService) {
+       this.selfProductService = selfProductService;
+       this.fakeStoreProductService = fakeStoreProductService;
+   }
+   ```
+   Make sure to add corresponding fields to your controller:
+   ```
+   private final ProductService selfProductService;
+   private final ProductService fakeStoreProductService;
+   ```
+   ### Summary
+   - **One implementation:** Just specify the correct qualifier in your existing constructor.
+   - **Both implementations needed:** Inject both using different qualifiers and fields—no need for a new controller
+      or multiple constructors.
+   - Methods will use the respective fields, each qualifier will need different method. But it is not best practice.
+   (Mentioned below):
+    ---------BUTTT: (BEST PRACTICE)--------
+    - If you inject both implementations into the same controller,** you will need to write separate methods for each
+    (or implement logic to switch between them).
+     This can clutter the controller and reduce clarity.
+    - SO ""Separate controllers"" for each service implementation** provide better visibility, maintain separation of
+      concerns, and generally lead to cleaner, more maintainable code.
+    - SO rather than adding all qualifiers in a single controller constructor and have all implementation methods in
+       single controller,
+    its better to have different controllers for different qualifiers/services.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 9: Implemented Fetch types like HQL and Native SQL quries
+
+--------------------
+Notes/comments removed:
+
+ /// NOTE___@RequestBody is used typically in POST,PUT,PATCH request that is when a body is passed on the client
+ /// side such as during creation of product.
+
+//note
+    /// Note: @RequestBody can be used to pass the json request body in the format of DTO (fakestore)
+    /// Spring Boot uses Jackson to map the JSON fields from the request body to the fields of the
+    /// Product class. If Product is a model class and not a DTO, it will directly map the JSON to
+    /// the Product object, not a separate DTO
+    /// If you want to use a dedicated DTO, you would need to define a DTO class (e.g., ProductDto) and
+    /// use it as the parameter instead of Product. Then, you can map the DTO to the Product entity
+    /// manually or using a library like MapStruct.
