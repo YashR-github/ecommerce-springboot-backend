@@ -8,6 +8,7 @@ import com.stripe.exception.StripeException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +21,8 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-
-    @PostMapping(value="/payments")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @PostMapping(value="/customers/payments")
     public ResponseEntity<String> createPaymentLink(@RequestBody GeneratePaymentLinkRequestDto paymentLinkRequestDto) throws StripeException, RazorpayException {
           String paymentLink = paymentService.generatePaymentLink(paymentLinkRequestDto.getOrderId(), paymentLinkRequestDto.getAmount());
 

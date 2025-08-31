@@ -29,9 +29,9 @@ public class ProductController {
 
     /// ------------------------------------------------------------ SELLER specific APIs ------------------------------------------------------------------------------
     @PreAuthorize("hasRole('SELLER')")
-    @PostMapping(value = "/products")
+    @PostMapping(value = "/sellers/products")
     public Product createProductForSeller(@RequestBody Product product)// RequestBody tells Controller to create product based on requestbody format in (fakestore) dto
-    {   // productService interface has method createProduct
+    {
         Product p = productService.createProduct(product.getId(), product.getTitle(), product.getDescription(), product.getPrice(), product.getImageUrl(), product.getCategory().getTitle());
         return p;
     }
@@ -39,25 +39,21 @@ public class ProductController {
 
     //get Single Product api below -Todo- can remove if getAll filtered is done
     @PreAuthorize("hasRole('SELLER')")
-    @GetMapping(value = "/products/{id}")
-    /// Product is a model class that is used below as data type for p
-    ///ResponseEntity adds meta data on top of Product
+    @GetMapping(value = "/sellers/products/{id}")
     public ResponseEntity<Product> getProductByIdForSeller(@PathVariable("id") Long id) throws ProductNotFoundException {
         System.out.println("Starting API here");
         Product p = productService.getSingleProduct(id);
         System.out.println("Ending API here");
 
-        /// Since return type is ResponseEntity, we have to first create an object of it and pass Http Response class
-        /// already created by Spring for effective Status handling
         ResponseEntity<Product> response = new ResponseEntity<>(p, HttpStatus.OK);// includes body p( ie product) and inbuilt status class
 
-        return response; // Returns the final output on client side
+        return response;
     }
 
 
     // update product api for seller
     @PreAuthorize("hasRole('SELLER')")
-    @PutMapping(value = "/products/{id}")
+    @PatchMapping(value = "/sellers/products/{id}")
     public Product updateProductForSeller(@RequestBody Product product) //RequestBody is the body received by client which includes the changes
     {
         System.out.println("Updating product");
@@ -69,7 +65,7 @@ public class ProductController {
 
     //delete product api for seller
     @PreAuthorize("hasRole('SELLER')")
-    @DeleteMapping(value = "/products/{id}")
+    @DeleteMapping(value = "/sellers/products/{id}")
     public Product deleteProductForSeller(@PathVariable("id") Long id) throws ProductNotFoundException {
         System.out.println("Product deleting");
         Product p = productService.deleteProduct(id);
@@ -80,28 +76,30 @@ public class ProductController {
 
     // get all products for seller- Todo  convertto only one filtered getALl
     @PreAuthorize("hasRole('SELLER')")
-    @GetMapping(value = "/products")
-    public List<Product> getAllSellerProductsForSeller() {
+    @GetMapping(value = "sellers/products")
+    public List<Product> getAllProductsForSeller() {
         System.out.println("Getting all products");
         List<Product> p = productService.getAllProducts();
         System.out.println("Ending API here, returned list on client side.");
         return p;
     }
 
-//    @GetMapping("/products")
-//    // Pagination for getAll products  // pageSize, pageNumber, fieldName, other example- sortOrder
-//    public Page<Product> getAllProductsByPage(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize, @RequestParam("fieldName")  String fieldName){
+    @PreAuthorize("hasRole('SELLER')")
+    @GetMapping("/sellers/products-filtered")
+    // Pagination for getAll products  // pageSize, pageNumber, fieldName, other example- sortOrder
+    public Page<Product> getAllProductsFilteredForSeller(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize, @RequestParam("fieldName")  String fieldName){
+
 //        return productService.getAllProductsByPage(pageNumber, pageSize, fieldName);
-//
-//
-//    }
+
+    return null;
+    }
 
 
     /// ------------------------------------------------ Customer specific APIs ----------------------------------------------------------------------
 
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @GetMapping("/products")
+    @GetMapping("/customers/products")
     public Page<Product> getAllProductsByPageForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
 
         return null;
@@ -110,30 +108,44 @@ public class ProductController {
 
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @GetMapping("/product-details")
-    public Page<Product> getProductsDetailsByIdForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+    @GetMapping("/customers/product-details")
+    public Page<Product> getProductDetailsByIdForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
 
         return null;
 
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @GetMapping("/add-to-cart")
+    @GetMapping("/customers/add-to-cart")
     public Page<Product> addProductToCartForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
 
         return null;
 
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/customers/cart")
+    public Page<Product> getCartForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+        return null;
+    }
+
+
 
     ///    ---------------------------------------------------ADMIN APIs---------------------------------------------------------------------------------------------
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/inventory-details")
+    @GetMapping("/admin/inventory-details")
     public Page<Product> getInventoryProductsForAdmin(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
 
         return null;
 
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/order-id-details")
+    public Page<Product> getOrderDetailsByOrderIDForAdmin(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+
+        return null;
     }
 }

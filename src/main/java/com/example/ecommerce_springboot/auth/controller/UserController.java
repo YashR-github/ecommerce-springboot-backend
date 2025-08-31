@@ -39,7 +39,7 @@ private UserService userService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/customer-details")
-    public Page<Product> getAllCustomerInfoForSeller(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+    public Page<Product> getAllCustomerInfoForAdmin(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
 
         return null;
     }
