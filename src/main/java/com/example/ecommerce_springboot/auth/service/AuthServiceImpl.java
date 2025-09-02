@@ -62,11 +62,9 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = new User();
         user.setName(name);
-//        user.setUsername(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password)); //hash before setting
         user.setUserRole(userRole);
-//        user.setUserStatus(UserStatus.ACTIVE);
         User savedUser = userRepository.save(user);
 
         EmailRequestDTO emailRequestDTO = new EmailRequestDTO();

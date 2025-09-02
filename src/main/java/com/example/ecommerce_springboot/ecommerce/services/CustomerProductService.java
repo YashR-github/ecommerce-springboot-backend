@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
-@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasAuthority('CUSTOMER')")
 public class CustomerProductService {
     private final AuthenticatedUserUtil authenticatedUserUtil;
 

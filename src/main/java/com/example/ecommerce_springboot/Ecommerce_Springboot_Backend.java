@@ -5,10 +5,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Ecommerce_AWS_deployed_SpringImplementation {
+public class Ecommerce_Springboot_Backend {
 
     public static void main(String[] args) {
-        SpringApplication.run(Ecommerce_AWS_deployed_SpringImplementation.class, args);
+        SpringApplication.run(Ecommerce_Springboot_Backend.class, args);
 
         Product p =new Product();
         p.setId(1L);

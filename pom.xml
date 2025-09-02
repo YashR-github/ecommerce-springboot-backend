@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>ECommerce-AWS_deployed_SpringImplementation</artifactId>
+    <artifactId>ECommerce-Springboot_Backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Ecommerce_AWS_deployed_SpringImplementation</name>
-    <description>Ecommerce_AWS_RDS,EBS_deployed_SpringImplementation</description>
+    <name>Ecommerce_Springboot_Backend</name>
+    <description>Ecommerce_Springboot_Backend</description>
     <url/>
     <licenses>
         <license/>
