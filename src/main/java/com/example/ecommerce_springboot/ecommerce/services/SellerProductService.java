@@ -1,10 +1,15 @@
 package com.example.ecommerce_springboot.ecommerce.services;
 
+import com.example.ecommerce_springboot.auth.util.AuthenticatedUserUtil;
 import com.example.ecommerce_springboot.ecommerce.exceptions.ProductNotFoundException;
+import com.example.ecommerce_springboot.ecommerce.exceptions.SellerProductAlreadyExistException;
 import com.example.ecommerce_springboot.ecommerce.models.Category;
 import com.example.ecommerce_springboot.ecommerce.models.Product;
+import com.example.ecommerce_springboot.ecommerce.models.User;
 import com.example.ecommerce_springboot.ecommerce.repository.CategoryRepository;
 import com.example.ecommerce_springboot.ecommerce.repository.ProductRepository;
+import com.example.ecommerce_springboot.ecommerce.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,18 +23,28 @@ import java.util.Optional;
 @PreAuthorize("hasAuthority('SELLER')")
 public class SellerProductService {
 
+    private UserRepository userRepository;
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
+    private AuthenticatedUserUtil authenticatedUserUtil;
 
-    public SellerProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public SellerProductService(UserRepository userRepository, ProductRepository productRepository, CategoryRepository categoryRepository, AuthenticatedUserUtil authenticatedUserUtil) {
+        this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.authenticatedUserUtil = authenticatedUserUtil;
     }
 
 
     //create product method for seller
-    public Product createProduct(Long id, String title, String description, Double price, String image, String category) {
-   /*   1. Check if category is there in db
+    @Transactional
+    public Product createProduct(String title, String description, Double price, String image, String category) {
+        Optional<Product> optionalProduct =productRepository.findByUserAndTitle(getCurrentUser(), title);
+        if(optionalProduct.isPresent()) {
+            throw new SellerProductAlreadyExistException("Product with same title already exist.");
+        }
+
+    /*  1. Check if category is there in db
         2. If not there, create it and use it while saving product.
         3. If there, use it in product directly.                                       */
         Product p= new Product();
@@ -43,7 +58,6 @@ public class SellerProductService {
         else {
             p.setCategory(optionalCategory.get()); //if category is present in db, then set it to product object
         }
-
         p.setTitle(title);
         p.setDescription(description);
         p.setPrice(price);
@@ -54,15 +68,20 @@ public class SellerProductService {
     }
 
 
+ // delete product method for seller
+    @Transactional
+    public void deleteProduct(Long id) throws ProductNotFoundException {
 
-    public Product deleteProduct(Long id) throws ProductNotFoundException {
-
-
-        return null;
+        Optional<Product> optionalProduct= productRepository.findByUserAndId(getCurrentUser(),id);
+        if(optionalProduct.isEmpty()) {
+            throw new ProductNotFoundException("Product not found with id "+id+". The product might have been deleted already.");
+        }
+        productRepository.delete(optionalProduct.get());
     }
 
 
-    public Product updateProduct(Long id, String title, String description, Double price, String image, String category) {
+    @Transactional
+    public Product updateProduct(String title, String description, Double price, String image, String category) {
         return null;
     }
 
@@ -90,5 +109,10 @@ public class SellerProductService {
         return List.of();
     }
 
+
+    //helper methods
+    public User getCurrentUser() {
+        return authenticatedUserUtil.getCurrentUser();
+    }
 
 }

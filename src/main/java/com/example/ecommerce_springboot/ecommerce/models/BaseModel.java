@@ -17,7 +17,7 @@ import java.util.Date;
 @MappedSuperclass  // tells Hibernate this is a superclass
 public class BaseModel {
    @Id
-   @GeneratedValue(strategy= GenerationType.AUTO)
+   @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     private Date createdAt;
     private Date updatedAt;

@@ -29,7 +29,7 @@ public class ProductController {
 
 
     //Spring injects the dependency of ProductService using the constructor
-    public ProductController(@Qualifier("SelfProductService") ProductService productService, SellerProductService sellerProductService, CustomerProductService customerProductService, AdminProductService adminProductService) {
+    public ProductController(@Qualifier("FakeStoreProductService") ProductService productService, SellerProductService sellerProductService, CustomerProductService customerProductService, AdminProductService adminProductService) {
         this.productService = productService;
         this.sellerProductService = sellerProductService;
         this.customerProductService = customerProductService;
@@ -41,7 +41,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('SELLER')")
     @PostMapping(value = "/sellers/products")
     public ResponseEntity<Product> createProductForSeller(@RequestBody Product product)// RequestBody tells Controller to create product based on requestbody format in (fakestore) dto
-    {   Product p = productService.createProduct(product.getId(), product.getTitle(), product.getDescription(), product.getPrice(), product.getImageUrl(), product.getCategory().getTitle());
+    {   Product p = sellerProductService.createProduct(product.getTitle(), product.getDescription(), product.getPrice(), product.getImageUrl(), product.getCategory().getTitle());
         return new ResponseEntity<>(p,HttpStatus.OK);
     }
 
@@ -60,7 +60,7 @@ public class ProductController {
     @PatchMapping(value = "/sellers/products/{id}")
     public ResponseEntity<Product> updateProductForSeller(@RequestBody Product product) //RequestBody is the body received by client which includes the changes
     {
-        Product p = productService.updateProduct(product.getId(), product.getTitle(), product.getDescription(), product.getPrice(), product.getImageUrl(), product.getCategory().getTitle());
+        Product p = sellerProductService.updateProduct(product.getTitle(), product.getDescription(), product.getPrice(), product.getImageUrl(), product.getCategory().getTitle());
         return new ResponseEntity<>(p,HttpStatus.OK);
     }
 
@@ -68,10 +68,10 @@ public class ProductController {
     //delete product api for seller
     @PreAuthorize("hasAuthority('SELLER')")
     @DeleteMapping(value = "/sellers/products/{id}")
-    public ResponseEntity<Product> deleteProductForSeller(@PathVariable("id") Long id) throws ProductNotFoundException {
+    public ResponseEntity<Void> deleteProductForSeller(@PathVariable("id") Long id) throws ProductNotFoundException {
 
-        Product p = productService.deleteProduct(id);
-        return new ResponseEntity<>(p,HttpStatus.OK);  // Return info of product deleted as output as received from fakestore
+        sellerProductService.deleteProduct(id);
+        return new ResponseEntity<>(HttpStatus.OK);  // Return info of product deleted as output as received from fakestore
     }
 
 //
@@ -107,9 +107,9 @@ public class ProductController {
 
 
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/customers/product-details")
-    public Page<Product> getSingleProductDetailsByIdForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
-
+    @GetMapping("/customers/product-details/{product_id}")
+    public Page<Product> getSingleProductDetailsByIdForCustomer(@PathVariable("product_id") Long productId) {
+          Product p = customerProductService.getSingleProductDetails(productId);
         return null;
 
     }

@@ -13,7 +13,7 @@ public class CartItem extends BaseModel {
     @ManyToOne
     private Product product;
     private int quantity;
-    private double totalPrice;
+    private double totalCartItemsPrice;
     @ManyToOne
     @JoinColumn(name = "cart_id")
     private Cart cart;

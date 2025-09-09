@@ -1,6 +1,7 @@
 package com.example.ecommerce_springboot.ecommerce.repository;
 
 import com.example.ecommerce_springboot.ecommerce.models.Product;
+import com.example.ecommerce_springboot.ecommerce.models.User;
 import com.example.ecommerce_springboot.ecommerce.repository.projections.ProductProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,12 +10,22 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> /* format- < Model, Data_Type of Model's Primary Key>   */ {
 
     // Paging query in jpa, uses page number and pageSize to do the correct limit and offset in order to return result
     @Override
     Page<Product> findAll(Pageable pageable) ;
+
+    Page<Product> findAllByUserId(Long userId, Pageable pageable);
+
+    Page<Product> findAllByCategory_Id(Long categoryId, Pageable pageable);// maybe be used by customer
+
+    Optional<Product> findByUserAndTitle(User user, String title);
+
+    Optional<Product> findByUserAndId(User user , Long id);
+
 
 
 
