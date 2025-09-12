@@ -16,5 +16,4 @@ public class InventoryItem extends BaseModel{
     private InventoryItemStatus itemStatus;
 
 
-
 }

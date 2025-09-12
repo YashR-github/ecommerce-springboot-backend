@@ -5,6 +5,8 @@ import com.example.ecommerce_springboot.ecommerce.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayDeque;
+
 
 @Data
 @NoArgsConstructor
@@ -18,8 +20,6 @@ public class Product extends BaseModel {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-
-
 
 
 //    @Enumerated(EnumType.STRING)
