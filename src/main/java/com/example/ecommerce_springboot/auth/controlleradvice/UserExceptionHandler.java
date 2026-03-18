@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-@RestControllerAdvice(basePackages= {"org.example.ecommerce_springboot.auth"})
+@RestControllerAdvice(basePackages= {"com.example.ecommerce_springboot.auth"})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class UserExceptionHandler {
 

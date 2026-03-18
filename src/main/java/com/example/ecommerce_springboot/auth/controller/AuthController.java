@@ -3,10 +3,11 @@ package com.example.ecommerce_springboot.auth.controller;
 
 import com.example.ecommerce_springboot.auth.dtos.*;
 import com.example.ecommerce_springboot.auth.exceptions.InvalidCredentialsException;
-import com.example.ecommerce_springboot.auth.service.AuthLoginService;
-import com.example.ecommerce_springboot.auth.service.AuthService;
+import com.example.ecommerce_springboot.auth.service.*;
+import com.example.ecommerce_springboot.auth.util.AuthServiceResolver;
 import com.example.ecommerce_springboot.auth.util.AuthenticatedUserUtil;
 import com.example.ecommerce_springboot.ecommerce.enums.UserRole;
+import com.example.ecommerce_springboot.ecommerce.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,23 +19,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final Map<String,AuthService> authServiceMap;
     private final AuthenticatedUserUtil authenticatedUserUtil;
+    private final AuthServiceResolver authServiceResolver;
 
-
-    public AuthController(Map<String, AuthService> authServiceMap, AuthenticatedUserUtil authenticatedUserUtil) {
-        this.authServiceMap = authServiceMap;
+    public AuthController(AuthenticatedUserUtil authenticatedUserUtil, AuthServiceResolver authServiceResolver, AuthLoginService authLoginService) {
         this.authenticatedUserUtil = authenticatedUserUtil;
+        this.authServiceResolver = authServiceResolver;
     }
 
     @PostMapping("/seller/signup")
     public ResponseEntity<ResponseDTO<UserSignupResponseDTO>> signupSeller(@RequestBody @Valid UserSignupRequestDTO request) {
-        AuthService authService = authServiceMap.get(UserRole.SELLER.name());
+        AuthService authService = authServiceResolver.getService(UserRole.SELLER);
         UserSignupResponseDTO userResponseDto = authService.signUp(request.getName(), request.getPhone(), request.getEmail(), request.getPassword(), UserRole.SELLER);
         ResponseDTO<UserSignupResponseDTO> responseDto = new ResponseDTO<>("User Signed Up Successfully!", userResponseDto);
         return ResponseEntity.ok(responseDto);
@@ -42,7 +41,7 @@ public class AuthController {
 
     @PostMapping("/customer/signup")
     public ResponseEntity<ResponseDTO<UserSignupResponseDTO>> signupCustomer(@RequestBody @Valid UserSignupRequestDTO request) {
-        AuthService authService = authServiceMap.get(UserRole.CUSTOMER.name());
+        AuthService authService = authServiceResolver.getService(UserRole.CUSTOMER);
         UserSignupResponseDTO userResponseDto = authService.signUp(request.getName(), request.getPhone(), request.getEmail(), request.getPassword(), UserRole.CUSTOMER);
         ResponseDTO<UserSignupResponseDTO> responseDto = new ResponseDTO<>("User Signed Up Successfully!", userResponseDto);
         return ResponseEntity.ok(responseDto);
@@ -50,7 +49,7 @@ public class AuthController {
 
     @PostMapping("/admin/signup")
     public ResponseEntity<ResponseDTO<UserSignupResponseDTO>> signupAdmin(@RequestBody @Valid UserSignupRequestDTO request) {
-        AuthService authService = authServiceMap.get(UserRole.ADMIN.name());
+        AuthService authService = authServiceResolver.getService(UserRole.ADMIN);
         UserSignupResponseDTO userResponseDto = authService.signUp(request.getName(), request.getPhone(), request.getEmail(), request.getPassword(), UserRole.ADMIN);
         ResponseDTO<UserSignupResponseDTO> responseDto = new ResponseDTO<>("User Signed Up Successfully!", userResponseDto);
         return ResponseEntity.ok(responseDto);
@@ -66,7 +65,7 @@ public class AuthController {
             throw new InvalidCredentialsException("Phone or Email must be provided");
         }
 
-        AuthService authService = authServiceMap.get(getCurrentUserRole());
+        AuthService authService = authServiceResolver.getService(authenticatedUserUtil.getCurrentUserRole(email,phone));
         AuthLoginResponseDTO authLoginResponseDto = authService.login(phone, email, request.getPassword());
 
         HttpHeaders headers = new HttpHeaders();
@@ -76,14 +75,5 @@ public class AuthController {
         ResponseDTO<UserLoginResponseDTO> responseDto = new ResponseDTO<>("User Logged In Successfully!", authLoginResponseDto.getUserLoginResponseDto());
         return new ResponseEntity<>(responseDto, headers, HttpStatus.OK);
     }
-
-
-
-    //------------------------------ helper method -------------------------------------------------------------------------------------------------------------
-
-    private String getCurrentUserRole() {
-        return authenticatedUserUtil.getCurrentUser().getUserRole().name();
-    }
-
 
 }

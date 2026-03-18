@@ -49,6 +49,16 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
     int reserveOneForCart(Long listingId, Long cartItemId, LocalDateTime expiry);
 
 
+    @Modifying
+    @Query(value = """
+        update inventory_item 
+            set item_status ='AVAILABLE',
+         reserved_cart_item_id = null,
+         reservation_expiry_time =null 
+             where reserved_cart_item_id = :cartItemId
+                 and item_status = 'RESERVED_IN_CART'
+    """,nativeQuery = true)
+    int releaseCartReservation(Long cartIteId);
 
     @Modifying
     @Query("""
@@ -58,8 +68,6 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
                  and i.itemStatus ='RESERVED_IN_CART'
        """)
            int reserveForOrder(Long id);
-
-
 
 
 

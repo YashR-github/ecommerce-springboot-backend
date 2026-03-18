@@ -12,13 +12,13 @@ import com.example.ecommerce_springboot.ecommerce.repository.UserRepository;
 import com.example.ecommerce_springboot.notifications.dispatch.UnifiedNotificationDispatcher;
 import com.example.ecommerce_springboot.notifications.dtos.EmailRequestDTO;
 import jakarta.transaction.Transactional;
+import lombok.NoArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthAdminService  implements AuthService{
-
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; // for BCrypt
@@ -61,7 +61,6 @@ public class AuthAdminService  implements AuthService{
 
 
     @Transactional
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public AuthLoginResponseDTO login(String phone, String email , String password) throws UserNotFoundException {
         return authLoginService.loginUser(phone, email, password);
     }

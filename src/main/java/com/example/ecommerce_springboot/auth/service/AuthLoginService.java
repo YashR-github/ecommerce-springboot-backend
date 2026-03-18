@@ -33,20 +33,20 @@ public class AuthLoginService {
     public AuthLoginResponseDTO loginUser(String phone, String email, String password) throws UserNotFoundException {
         Optional<User> optionalUser= Optional.empty();
 
-        if(phone!=null && !phone.isBlank()) {
+        if(phone!=null && !phone.isBlank() && (email==null || email.isBlank())) {
             optionalUser= userRepository.findByPhoneAndIsDeletedFalse(phone);
             if (optionalUser.isEmpty()) {
                 throw new UserNotFoundException("User with phone number not found");
             }
         }
-        else if(email!=null && !email.isBlank()) {
+        else if(email!=null && !email.isBlank() && (phone==null || phone.isBlank())) {
             optionalUser= userRepository.findByEmailAndIsDeletedFalse(email);
             if (optionalUser.isEmpty()) {
                 throw new UserNotFoundException("User with email not found");
             }
         }
         else { // extra check, this case already handled in controller
-            throw new InvalidCredentialsException("Phone or Email must be provided");
+            throw new InvalidCredentialsException("Either Phone or Email must be provided");
         }
 
         User user = optionalUser.get();
