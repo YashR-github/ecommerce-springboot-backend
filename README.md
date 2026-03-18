@@ -191,13 +191,3 @@ Access requires `ADMIN` role.
 | `GET` | `/order-id-details` | Get paginated order details by ID. | `/products/admin` |
 | `DELETE` | `/{id}` | Delete a user (requires ADMIN role or self-deletion). | `/user-management` |
 
-
-## Contributing
-
-Contributions are welcome! Please follow these standard open-source guidelines:
-
-1.  Fork the repository.
-2.  Create a new feature branch (`git checkout -b feature/AmazingFeature`).
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4.  Push to the branch (`git push origin feature/AmazingFeature`).
-5.  Open a Pull Request.
