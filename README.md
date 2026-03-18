@@ -1,4 +1,4 @@
-# Ecommerce Springboot Backend
+# CommerceHub- Ecommerce Springboot Backend
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 [![Language: Java](https://img.shields.io/badge/Language-Java-blue.svg)]
