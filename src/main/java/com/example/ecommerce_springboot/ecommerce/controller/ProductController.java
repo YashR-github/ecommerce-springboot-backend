@@ -1,15 +1,16 @@
 package com.example.ecommerce_springboot.ecommerce.controller;
 
 
+import com.example.ecommerce_springboot.ecommerce.dto.*;
 import com.example.ecommerce_springboot.ecommerce.exceptions.ProductNotFoundException;
 import com.example.ecommerce_springboot.ecommerce.models.Product;
-import com.example.ecommerce_springboot.ecommerce.services.AdminProductService;
-import com.example.ecommerce_springboot.ecommerce.services.CustomerProductService;
+import com.example.ecommerce_springboot.ecommerce.services.AdminService;
+import com.example.ecommerce_springboot.ecommerce.services.CustomerService;
 import com.example.ecommerce_springboot.ecommerce.services.ProductService;
-import com.example.ecommerce_springboot.ecommerce.services.SellerProductService;
-import okhttp3.Response;
+import com.example.ecommerce_springboot.ecommerce.services.SellerService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,131 +21,80 @@ import java.util.List;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
+//    private final ProductService productService;
+    private final SellerService sellerService;
+    private final AdminService adminService;
+    private final CustomerService customerService;
 
 
-    private ProductService productService;
-    private final SellerProductService sellerProductService;
-    private final CustomerProductService customerProductService;
-    private final AdminProductService adminProductService;
-
-
-    //Spring injects the dependency of ProductService using the constructor
-    public ProductController(@Qualifier("FakeStoreProductService") ProductService productService, SellerProductService sellerProductService, CustomerProductService customerProductService, AdminProductService adminProductService) {
-        this.productService = productService;
-        this.sellerProductService = sellerProductService;
-        this.customerProductService = customerProductService;
-        this.adminProductService = adminProductService;
+    public ProductController(@Qualifier("FakeStoreProductService") ProductService productService, AdminService adminService,SellerService sellerService,CustomerService customerService) {
+//        this.productService = productService;
+        this.adminService = adminService;
+        this.sellerService = sellerService;
+        this.customerService= customerService;
     }
 
 
-    /// ------------------------------------------------------------ SELLER specific APIs ------------------------------------------------------------------------------
-    @PreAuthorize("hasAuthority('SELLER')")
-    @PostMapping(value = "/sellers/products")
-    public ResponseEntity<Product> createProductForSeller(@RequestBody Product product)// RequestBody tells Controller to create product based on requestbody format in (fakestore) dto
-    {   Product p = sellerProductService.createProduct(product.getTitle(), product.getDescription(), product.getPrice(), product.getImageUrl(), product.getCategory().getTitle());
-        return new ResponseEntity<>(p,HttpStatus.OK);
+// --------------------------------------------Customer APIs-------------------------------------------------------------------------
+
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/customers/homepage")
+    public ResponseEntity<List<HomePageProductDTO>> getCatalogueHomePageProducts(){
+        List<HomePageProductDTO> catalogueProducts = customerService.getHomePageProductsDisplay();
+        return ResponseEntity.ok(catalogueProducts);
     }
 
 
-//    //get Single Product api below -Todo- can remove if getAll filtered is done
-//    @PreAuthorize("hasAuthority('SELLER')")
-//    @GetMapping(value = "/sellers/products/{id}")
-//    public ResponseEntity<Product> getProductByIdForSeller(@PathVariable("id") Long id) throws ProductNotFoundException {
-//        Product p = productService.getSingleProduct(id);
-//        return new ResponseEntity<>(p, HttpStatus.OK);// includes body p( ie product) and inbuilt status class
+
+
+// ------------------------------------------------------------ SELLER specific APIs ------------------------------------------------------------------------------
+
+
+//    @PreAuthorize("hasRole('SELLER')")
+//    @GetMapping("/sellers/products")        // pageSize, pageNumber, fieldName, other example- sortOrder
+//    public ResponseEntity<Page<SellerSearchResultProductDTO>> getAllProductsBySearchFiltered(Pageable pageable, @RequestParam(required=false)  String keyword){
+//
 //    }
 
 
-    // update product api for seller
-    @PreAuthorize("hasAuthority('SELLER')")
-    @PatchMapping(value = "/sellers/products/{id}")
-    public ResponseEntity<Product> updateProductForSeller(@RequestBody Product product) //RequestBody is the body received by client which includes the changes
-    {
-        Product p = sellerProductService.updateProduct(product.getTitle(), product.getDescription(), product.getPrice(), product.getImageUrl(), product.getCategory().getTitle());
-        return new ResponseEntity<>(p,HttpStatus.OK);
+
+
+
+//---------------------------------------------------------ADMIN APIs---------------------------------------------------------------------------------------------
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/admin/create/product")
+    public ResponseEntity<ProductCreateResponseDto> createNewProduct(@RequestBody NewProductCreateReqDTO productReqDto)
+    {   ProductCreateResponseDto productListingResDto = adminService.createNewProduct(productReqDto.getName(),productReqDto.getShortDescription(),productReqDto.getLongDescription(),productReqDto.getBrand(),productReqDto.getModel(), productReqDto.getWeightInGrams(), productReqDto.getBasePrice(), productReqDto.getBaseImageUrl(),productReqDto.getCategory().toString().toUpperCase());
+        return new ResponseEntity<>(productListingResDto,HttpStatus.OK);
     }
 
 
-    //delete product api for seller
-    @PreAuthorize("hasAuthority('SELLER')")
-    @DeleteMapping(value = "/sellers/products/{id}")
-    public ResponseEntity<Void> deleteProductForSeller(@PathVariable("id") Long id) throws ProductNotFoundException {
-
-        sellerProductService.deleteProduct(id);
-        return new ResponseEntity<>(HttpStatus.OK);  // Return info of product deleted as output as received from fakestore
-    }
-
-//
-//    // get all products for seller-
-//    @PreAuthorize("hasAuthority('SELLER')")
-//    @GetMapping(value = "sellers/products")
-//    public List<Product> getAllProductsForSeller() {
-//        List<Product> p = productService.getAllProducts();
-//        return p;
-//    } Todo  convert below api to only one filtered getALl
-
-    @PreAuthorize("hasAuthority('SELLER')")
-    @GetMapping("/sellers/products-filtered")
-    // Pagination for getAll products  // pageSize, pageNumber, fieldName, other example- sortOrder
-    public Page<Product> getAllProductsFilteredForSeller(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize, @RequestParam("fieldName")  String fieldName){
-
-//        return productService.getAllProductsByPage(pageNumber, pageSize, fieldName);
-
-    return null;
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping(value = "/admin/products/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long productToUpdateId , @RequestBody ProductUpdateReqDTO productDto)
+    {  Product product = adminService.updateProduct(productToUpdateId, productDto.getTitle(), productDto.getShortDescription(), productDto.getLongDescription(), productDto.getBrand(),  productDto.getWeightInGrams(), productDto.getBaseImageUrl(), productDto.getCategoryId(),productDto.getProductStatus());
+        return new ResponseEntity<>(product,HttpStatus.OK);
     }
 
 
-    /// ------------------------------------------------ Customer specific APIs ----------------------------------------------------------------------
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping(value = "/admin/delete/product/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) throws ProductNotFoundException {
+        adminService.markProductDeletion(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 
-    @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/customers/products")
-    public Page<Product> getAllFilteredProductsByPageForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/inventory/view-details")
+    public Page<Product> getFilteredInventoryByPage(Pageable pageable) {
 
         return null;
 
     }
 
 
-    @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/customers/product-details/{product_id}")
-    public Page<Product> getSingleProductDetailsByIdForCustomer(@PathVariable("product_id") Long productId) {
-          Product p = customerProductService.getSingleProductDetails(productId);
-        return null;
-
-    }
-
-    @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/customers/add-to-cart")
-    public Page<Product> addProductToCartForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
-
-        return null;
-
-    }
-
-    @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/customers/cart")
-    public Page<Product> getCartByPageForCustomer(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
-        return null;
-    }
-
-
-
-    ///    ---------------------------------------------------ADMIN APIs---------------------------------------------------------------------------------------------
-
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/admin/inventory-details")
-    public Page<Product> getFilteredInventoryByPageForAdmin(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
-
-        return null;
-
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/admin/order-id-details")
-    public Page<Product> getOrderDetailsByOrderIDForAdmin(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
-
-        return null;
-    }
 }

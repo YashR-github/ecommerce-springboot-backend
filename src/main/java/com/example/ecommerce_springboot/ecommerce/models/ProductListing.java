@@ -1,26 +1,32 @@
 package com.example.ecommerce_springboot.ecommerce.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.Data;
+import com.example.ecommerce_springboot.ecommerce.enums.ListingStatus;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
-@Data
-//acts as a container or a seller inventory declaration of a particular product
+@Getter
+@Setter
+//acts as a container or a 'seller inventory declaration' of a particular single product
 public class ProductListing extends BaseModel{
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
     private Product product;
-
     @ManyToOne
-    @JoinColumn(name = "seller_id")
-    private User seller;
-    private int quantity;
-    private double perPrice;
+    private User listingCreator;
+    private Integer quantityListed;
+    private BigDecimal basePrice;
+    private String title; //subject of listing
+    private String description;//comments on listing
+    private List<String> imageUrls;
+    @Enumerated(EnumType.STRING)
+    private ListingStatus listingStatus;
 
-    private String sellerTitle;
-    private String sellerDescription;
+    @OneToMany(mappedBy = "productListing", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<InventoryItem> inventoryItems;
 
 }

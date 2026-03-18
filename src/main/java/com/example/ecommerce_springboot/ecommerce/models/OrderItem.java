@@ -2,20 +2,22 @@ package com.example.ecommerce_springboot.ecommerce.models;
 
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
-import lombok.Data;
+import jakarta.persistence.OneToOne;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
-public class OrderItem extends BaseModel{
-
-    @ManyToOne
-    private User user;
-    @ManyToOne
-    private Product product;
-    private int quantity;
-
-    private double totalPrice;
-    @ManyToOne
+@Getter
+@Setter
+public class OrderItem extends BaseModel {
+    @ManyToOne(optional = false, fetch= FetchType.LAZY)
     private Order order;
+
+    @OneToOne(optional= false)
+    private CartItem cartItem;
+
+    private double itemFinalPrice; //changes based on coupons and promotions applied
+
 }

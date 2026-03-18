@@ -7,9 +7,11 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
 import java.util.Date;
 
 
@@ -26,17 +28,29 @@ public class JwtUtil {
     }
 
 
-    public String generateToken(String username, String role){
+    public String generateToken(Long userId, String role){
         Date now = new Date();
         Date expiryDate= new Date(now.getTime() + jwtExpirationInMillis);
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(userId.toString())
+                .setIssuer("CommerceHub_BY_Yash")
                 .claim("role",role)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public ResponseCookie generateTokenCookie(String token){
+        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", token)
+                .httpOnly(true)
+                .secure(false)//make true for production
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(Duration.ofMillis(jwtExpirationInMillis))
+                .build();
+        return cookie;
     }
 
     public boolean validateToken(String token){
@@ -52,7 +66,7 @@ public class JwtUtil {
     }
     }
 
-    public String extractUsername(String token){
+    public String extractSubject(String token){
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()

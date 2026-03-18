@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Arrays;
 
 
-
+// An extra layer of service demonstrating CRUD interaction with a third party dummy virtual store called fake-store using RestTemplate
 @Service("FakeStoreProductService")
-public class FakeStoreProductService  implements ProductService{
+public class FakeStoreProductService  implements ProductService {
 
 
     //rest template dependency for connecting to third party fakestore
@@ -27,15 +27,14 @@ public class FakeStoreProductService  implements ProductService{
 
     // service crud methods
 
-    //get single product- Uses Redis cache for caching the data
+    //get Single product - Uses Redis cache for caching the data
     @Override
     public Product getSingleProduct(long id) throws ProductNotFoundException {
         System.out.println("Inside FK Store product service");
 
-
-        // First part is: assume it as table name "PRODUCTS"
-        // Second part : hashKey of the product
-        // the method returns Object which is type casted/parsed to Product object
+        // 1. assume it as table name "PRODUCTS"
+        // 2. hashKey of the product
+        // 3. the method returns Object which is type casted/parsed to Product object
         Product redisProduct = (Product) redisTemplate.opsForHash().get("PRODUCTS","PRODUCTS_"+id);
 
         if(redisProduct!=null) {
@@ -50,18 +49,19 @@ public class FakeStoreProductService  implements ProductService{
         }
 
         // put in Redis for caching for future use
-        //in "PRODUCTS" table put key="PRODUCTS_"+id and value= the product from fakestore
+        // in "PRODUCTS" table put key="PRODUCTS_"+id and value= the product from fakestore
         redisTemplate.opsForHash().put("PRODUCTS", "PRODUCTS_"+id, fakeStoreProductDto.getProduct());
 
         return fakeStoreProductDto.getProduct();
     }
 
 
-// get all method
+    // get all method
     @Override
     public List<Product> getAllProducts() {
         FakeStoreProductDto[] fakeStoreProductDto= restTemplate.getForObject("https://fakestoreapi.com/products",  FakeStoreProductDto[].class);
         //Convert each FakeStoreProductDto to Product and return as a List
+        assert fakeStoreProductDto != null;
         return Arrays.stream(fakeStoreProductDto).map(FakeStoreProductDto::getProduct).toList();
 
     }
@@ -83,6 +83,7 @@ public class FakeStoreProductService  implements ProductService{
 
         return response.getProduct();
     }
+
 
     // delete (Single) Product
     public Product deleteProduct(Long id) throws ProductNotFoundException{
@@ -124,11 +125,6 @@ public class FakeStoreProductService  implements ProductService{
 //        return products;
         return null;
     }
-
-
-
-
-
 
 
 

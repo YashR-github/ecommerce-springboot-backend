@@ -1,6 +1,6 @@
 package com.example.ecommerce_springboot.ecommerce.enums;
 
 
-public enum PaymentType {
+public enum PaymentMode {
     COD, WALLET, UPI, CARD
 }

@@ -10,11 +10,13 @@ import com.example.ecommerce_springboot.ecommerce.enums.UserRole;
 import com.example.ecommerce_springboot.ecommerce.models.User;
 import com.example.ecommerce_springboot.ecommerce.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 
 @Service
-public class UserServiceImpl implements UserService {
+@PreAuthorize("hasRole('ADMIN')")
+public class AdminUserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -22,8 +24,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private  AuthenticatedUserUtil authenticatedUserUtil;
 
-
-    //delete user
 
     public void deleteUser(Long userId){
        User user=   authenticatedUserUtil.getCurrentUser();

@@ -1,5 +1,6 @@
 package com.example.ecommerce_springboot.ecommerce.enums;
 
 public enum ProductStatus {
-        INVENTORY, CART, DELIVERED
+        IN_REVIEW, PRODUCT_LIVE, PRODUCT_DELETED , PRODUCT_ARCHIVED
+
 }

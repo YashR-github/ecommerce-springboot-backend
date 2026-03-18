@@ -2,6 +2,6 @@ package com.example.ecommerce_springboot.ecommerce.enums;
 
 
 public enum CartStatus{
-    EMPTY, FILLED, Checked_OUT
+    EMPTY, NON_EMPTY, ORDER_PROCESSING, ORDER_PLACED, INACTIVE, SUSPENDED
 //    Order_PENDING, Order_COMPLETED, Order_CANCELLED
 }

@@ -1,6 +1,7 @@
 package com.example.ecommerce_springboot.auth.dtos;
 
 
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -15,10 +16,12 @@ public class UserSignupRequestDTO {
     @NotBlank(message="Name is required")
     private String name;
 
-    @NotBlank(message="Username is required")
-    private String username;
+    @NotBlank(message="Phone number is required")
+    @Digits(integer = 10, fraction = 0, message = "Phone number must be 10 digits")
+    private String phone;
 
-    @Email(message= "Invalid email")
+    @Email(message= "Please enter a valid email address")
+    @NotBlank(message="Email is required")
     private String email;
 
 

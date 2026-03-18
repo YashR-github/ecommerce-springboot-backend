@@ -12,7 +12,9 @@ import com.stripe.param.PriceCreateParams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-@Service
+import java.math.BigDecimal;
+
+@Service("StripePaymentGateway")
 public class StripePaymentGatewayImpl implements PaymentService{
 
     private final OrderRepository orderRepository;
@@ -25,7 +27,7 @@ public class StripePaymentGatewayImpl implements PaymentService{
     }
 
     @Override
-    public String generatePaymentLink(Long orderId, Long amount) throws StripeException {
+    public String generatePaymentLink(Long orderId, BigDecimal amount) throws StripeException {
      // Below is the stripe sdk based implementation , one can also integrate stripe apis using resttemplate and using cUrl of stripe and putting it in restTemplate.exchange method
         Stripe.apiKey = stripeKeySecret;
 
@@ -34,7 +36,7 @@ public class StripePaymentGatewayImpl implements PaymentService{
         PriceCreateParams priceParams =
                 PriceCreateParams.builder()
                         .setCurrency("INR")
-                        .setUnitAmount(amount)
+                        .setUnitAmount(amount.toBigInteger().longValue())
                         .setProductData(
                                 PriceCreateParams.ProductData.builder().setName(orderId.toString()).build()
                         )

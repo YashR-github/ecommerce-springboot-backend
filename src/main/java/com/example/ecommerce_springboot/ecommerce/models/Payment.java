@@ -1,25 +1,28 @@
 package com.example.ecommerce_springboot.ecommerce.models;
 
 
+import com.example.ecommerce_springboot.ecommerce.enums.PaymentMode;
 import com.example.ecommerce_springboot.ecommerce.enums.PaymentStatus;
-import com.example.ecommerce_springboot.ecommerce.enums.PaymentType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class Payment extends BaseModel{
-    private String paymentReference;
+    @ManyToOne(optional=false)
+    private Order order;
 
+    private String gatewayPaymentRef;
+    private String paymentLink;
     @Enumerated(EnumType.STRING)
-    private PaymentType paymentType;
+    private PaymentMode paymentMode;
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
-    private String paymentMessage;
+    private String paymentMessage="";
 
-    @ManyToOne
-    private Order order;
 }

@@ -5,28 +5,28 @@ import com.example.ecommerce_springboot.ecommerce.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayDeque;
+import java.math.BigDecimal;
 
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public class Product extends BaseModel {
     private String title;
-    private String description;
-//    private Double price;
-    private String imageUrl;
+    private String shortDescription;
+    private String longDescription;
+    private String brand;
+    private BigDecimal weightInGrams;
+    private String baseImageUrl; //optional feature
+    private BigDecimal avgPrice;
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    private User productCreator;
+    @ManyToOne
     private Category category;
-
-
-//    @Enumerated(EnumType.STRING)
-//    private ProductStatus productStatus;
-
-//    @ManyToOne
-//    @JoinColumn(name = "seller_id")
-//    private User seller;
+    private String model;
+    @Enumerated(EnumType.STRING)
+    private ProductStatus productStatus;
 
 }

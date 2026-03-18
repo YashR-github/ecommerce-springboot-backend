@@ -17,21 +17,13 @@ public class UserController {
 @Autowired
 private UserService userService;
 
-
-// delete user
-    @DeleteMapping ("/{id}")
-    public void deleteUser(@PathVariable Long id){
-        userService.deleteUser(id);
-
-    }
-
-//----------------------------ADMIN only APIs--------------------------------
+//----------------------------------------------------------- ADMIN only APIs --------------------------------------------------------------
 
 
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/seller-details")
-    public Page<Product> getAllSellerInfoForAdmin(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+    public Page<Product> getAllSellerInfo(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
 
         return null;
 
@@ -39,10 +31,18 @@ private UserService userService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/customer-details")
-    public Page<Product> getAllCustomerInfoForAdmin(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+    public Page<Product> getAllCustomerInfo(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
 
         return null;
     }
+
+
+
+//    @DeleteMapping ("/{id}")
+//    public void deleteUser(@PathVariable Long id){
+//        userService.deleteUser(id);
+//
+//    }
 
 }
 

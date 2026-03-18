@@ -17,11 +17,11 @@ public class FakeStoreProductDto {
         Product product = new Product();
         product.setId(this.id);
         product.setTitle(this.title);
-        product.setPrice(this.price);
-        product.setDescription(this.description);
-        product.setImageUrl(this.image);
+//        product.setPrice(this.price);
+        product.setLongDescription(this.description);
+//        product.setImageUrl(this.image);
         Category cat=new Category();
-        cat.setTitle(this.category);
+//        cat.setTitle(this.category);
         product.setCategory(cat);
        return product;   // Custom Product following DTO requirements
 

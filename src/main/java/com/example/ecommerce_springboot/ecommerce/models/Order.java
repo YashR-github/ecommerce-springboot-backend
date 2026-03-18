@@ -3,23 +3,35 @@ package com.example.ecommerce_springboot.ecommerce.models;
 
 import com.example.ecommerce_springboot.ecommerce.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
+@Table(name ="orders")
 public class Order extends BaseModel{
 
     @ManyToOne
     private User user;
-    @OneToMany
+    @OneToMany(mappedBy ="order", cascade =CascadeType.ALL,orphanRemoval =true)
     private List<OrderItem> orderItems;
-    private double orderTotal;
+    private BigDecimal orderTotal;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
+    private LocalDateTime orderDate;
+    private LocalDateTime reservationExpiryTime;
+    @OneToOne
+    private Payment payment;
 
-    @OneToMany(mappedBy = "order",fetch = FetchType.LAZY)
-    private List<Payment> payments;
+
+    public void addItems(List<OrderItem> items){
+        items.forEach(i->i.setOrder(this));
+        this.orderItems.addAll(items);
+    }
 
 }

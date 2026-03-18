@@ -1,8 +1,7 @@
 package com.example.ecommerce_springboot.ecommerce.models;
+import com.example.ecommerce_springboot.ecommerce.enums.CategoryType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 public class Category extends BaseModel{
-    private String title;
+    @Enumerated(EnumType.STRING)
+    private CategoryType categoryType;
+    private String description;//description
 
     @JsonIgnore
     @OneToMany(mappedBy = "category",fetch = FetchType.LAZY)

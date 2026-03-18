@@ -10,6 +10,8 @@ import com.razorpay.RazorpayException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service("razorpay")
 public class RazorpayGateway implements PaymentService{
 
@@ -24,7 +26,7 @@ public class RazorpayGateway implements PaymentService{
 
 
     @Override
-    public String generatePaymentLink(Long orderId, Long amount) throws RazorpayException {
+    public String generatePaymentLink(Long orderId, BigDecimal amount) throws RazorpayException {
         Order order= orderRepository.findById(orderId).orElseThrow(()->new RazorpayException("Order not found"));
         JSONObject paymentLinkRequest = new JSONObject();
         paymentLinkRequest.put("amount",amount); //10 rs

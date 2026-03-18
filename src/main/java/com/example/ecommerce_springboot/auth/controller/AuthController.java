@@ -3,7 +3,9 @@ package com.example.ecommerce_springboot.auth.controller;
 
 import com.example.ecommerce_springboot.auth.dtos.*;
 import com.example.ecommerce_springboot.auth.exceptions.InvalidCredentialsException;
+import com.example.ecommerce_springboot.auth.service.AuthLoginService;
 import com.example.ecommerce_springboot.auth.service.AuthService;
+import com.example.ecommerce_springboot.auth.util.AuthenticatedUserUtil;
 import com.example.ecommerce_springboot.ecommerce.enums.UserRole;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -14,28 +16,42 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService authService;
+    private final Map<String,AuthService> authServiceMap;
+    private final AuthenticatedUserUtil authenticatedUserUtil;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+
+    public AuthController(Map<String, AuthService> authServiceMap, AuthenticatedUserUtil authenticatedUserUtil) {
+        this.authServiceMap = authServiceMap;
+        this.authenticatedUserUtil = authenticatedUserUtil;
     }
-
 
     @PostMapping("/seller/signup")
     public ResponseEntity<ResponseDTO<UserSignupResponseDTO>> signupSeller(@RequestBody @Valid UserSignupRequestDTO request) {
-        UserSignupResponseDTO userResponseDto = authService.signUp(request.getName(), request.getUsername(), request.getEmail(), request.getPassword(), UserRole.SELLER);
+        AuthService authService = authServiceMap.get(UserRole.SELLER.name());
+        UserSignupResponseDTO userResponseDto = authService.signUp(request.getName(), request.getPhone(), request.getEmail(), request.getPassword(), UserRole.SELLER);
         ResponseDTO<UserSignupResponseDTO> responseDto = new ResponseDTO<>("User Signed Up Successfully!", userResponseDto);
         return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/customer/signup")
     public ResponseEntity<ResponseDTO<UserSignupResponseDTO>> signupCustomer(@RequestBody @Valid UserSignupRequestDTO request) {
-        UserSignupResponseDTO userResponseDto = authService.signUp(request.getName(), request.getUsername(), request.getEmail(), request.getPassword(), UserRole.CUSTOMER);
+        AuthService authService = authServiceMap.get(UserRole.CUSTOMER.name());
+        UserSignupResponseDTO userResponseDto = authService.signUp(request.getName(), request.getPhone(), request.getEmail(), request.getPassword(), UserRole.CUSTOMER);
+        ResponseDTO<UserSignupResponseDTO> responseDto = new ResponseDTO<>("User Signed Up Successfully!", userResponseDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PostMapping("/admin/signup")
+    public ResponseEntity<ResponseDTO<UserSignupResponseDTO>> signupAdmin(@RequestBody @Valid UserSignupRequestDTO request) {
+        AuthService authService = authServiceMap.get(UserRole.ADMIN.name());
+        UserSignupResponseDTO userResponseDto = authService.signUp(request.getName(), request.getPhone(), request.getEmail(), request.getPassword(), UserRole.ADMIN);
         ResponseDTO<UserSignupResponseDTO> responseDto = new ResponseDTO<>("User Signed Up Successfully!", userResponseDto);
         return ResponseEntity.ok(responseDto);
     }
@@ -43,14 +59,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO<UserLoginResponseDTO>> login(@RequestBody @Valid UserLoginRequestDTO request) {
-        String username = request.getUsername();
+        String phone = request.getPhone();
         String email = request.getEmail();
 
-        if ((username == null || username.isBlank()) && (email == null || email.isBlank())) {
-            throw new InvalidCredentialsException("Username or Email must be provided");
+        if ((phone == null || phone.isBlank()) && (email == null || email.isBlank())) {
+            throw new InvalidCredentialsException("Phone or Email must be provided");
         }
 
-        AuthLoginResponseDTO authLoginResponseDto = authService.login(username, email, request.getPassword());
+        AuthService authService = authServiceMap.get(getCurrentUserRole());
+        AuthLoginResponseDTO authLoginResponseDto = authService.login(phone, email, request.getPassword());
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + authLoginResponseDto.getToken());
@@ -58,6 +75,14 @@ public class AuthController {
 
         ResponseDTO<UserLoginResponseDTO> responseDto = new ResponseDTO<>("User Logged In Successfully!", authLoginResponseDto.getUserLoginResponseDto());
         return new ResponseEntity<>(responseDto, headers, HttpStatus.OK);
+    }
+
+
+
+    //------------------------------ helper method -------------------------------------------------------------------------------------------------------------
+
+    private String getCurrentUserRole() {
+        return authenticatedUserUtil.getCurrentUser().getUserRole().name();
     }
 
 

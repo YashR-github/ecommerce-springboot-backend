@@ -1,4 +1,4 @@
-package com.example.ecommerce_springboot.auth.dtos;
-
-public class UserResponseDTO {
-}
+//package com.example.ecommerce_springboot.auth.dtos;
+//
+//public class UserResponseDTO {
+//}

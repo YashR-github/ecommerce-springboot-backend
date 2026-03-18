@@ -11,6 +11,9 @@ src/main/resources/application-*.properties
 *.key
 *.pem
 
+### Custom Exclusions ###
+all-new-code.txt
+
 #Remove personal rough note files
 /com.example.ecommerce_springboot/Overview\ of\ Changes
 /auth/Testing\ issues

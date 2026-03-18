@@ -3,14 +3,23 @@ package com.example.ecommerce_springboot.ecommerce.models;
 
 import com.example.ecommerce_springboot.ecommerce.enums.CartStatus;
 import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
+@NoArgsConstructor
 public class Cart extends BaseModel {
+
+    @Version
+    private Long version;
 
     @OneToOne
     private User user;
@@ -18,9 +27,11 @@ public class Cart extends BaseModel {
     @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<CartItem> cartItems= new ArrayList<>();
 
-
     @Enumerated(EnumType.STRING)
-    private CartStatus status=CartStatus.EMPTY;
+    private CartStatus cartStatus=CartStatus.EMPTY;
+
+    @PositiveOrZero
+    private BigDecimal cartTotal= BigDecimal.ZERO;
 
 }
 

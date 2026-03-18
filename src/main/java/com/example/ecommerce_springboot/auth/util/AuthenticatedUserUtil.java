@@ -2,6 +2,7 @@ package com.example.ecommerce_springboot.auth.util;
 
 
 
+import com.example.ecommerce_springboot.auth.exceptions.UnauthorizedAccessException;
 import com.example.ecommerce_springboot.auth.exceptions.UserNotFoundException;
 import com.example.ecommerce_springboot.ecommerce.models.User;
 import com.example.ecommerce_springboot.ecommerce.repository.UserRepository;
@@ -24,7 +25,13 @@ public class AuthenticatedUserUtil { //extracts user from the security context
         if(auth==null || !auth.isAuthenticated() || auth.getName()==null) {
             throw new UserNotFoundException("Authentication failed or token expired. Please login again.");
         }
-        System.out.println("Username from SecurityContext: " + auth.getName());
-        return userRepository.findByUsername(auth.getName()).orElseThrow(()-> new UserNotFoundException("User account no longer exist. The user may have been deleted."));
+        Long userId;
+        try{
+            userId= Long.valueOf(auth.getName());
+        }
+        catch(NumberFormatException e){
+            throw new UnauthorizedAccessException("Invalid authentication token.");
+        }
+        return userRepository.findByIdAndIsDeletedFalse(userId).orElseThrow(()-> new UserNotFoundException("User account no longer exist. The user may have been deleted."));
     }
 }

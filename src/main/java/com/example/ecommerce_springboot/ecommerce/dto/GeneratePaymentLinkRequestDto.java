@@ -2,29 +2,20 @@ package com.example.ecommerce_springboot.ecommerce.dto;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
 
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class GeneratePaymentLinkRequestDto {
 
     private Long orderId;
-    private Long amount;
+    private BigDecimal amount;
 
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
-    public Long getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Long amount) {
-        this.amount = amount;
-    }
 }

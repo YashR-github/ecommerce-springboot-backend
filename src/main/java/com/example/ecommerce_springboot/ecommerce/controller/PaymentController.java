@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
     private PaymentService paymentService;
-    public PaymentController(@Qualifier("stripePaymentGatewayImpl") PaymentService paymentService) {
+    public PaymentController(@Qualifier("StripePaymentGateway") PaymentService paymentService) {
         this.paymentService = paymentService;
     }
 
@@ -25,14 +25,13 @@ public class PaymentController {
     @PostMapping(value="/customers/payments")
     public ResponseEntity<String> createPaymentLink(@RequestBody GeneratePaymentLinkRequestDto paymentLinkRequestDto) throws StripeException, RazorpayException {
           String paymentLink = paymentService.generatePaymentLink(paymentLinkRequestDto.getOrderId(), paymentLinkRequestDto.getAmount());
-
           return new ResponseEntity<>(paymentLink, HttpStatus.OK);
     }
 
 
 
-    @PostMapping("/webhook")
-    public void handleWebhook(){
+    @PostMapping("/webhooks/stripe")
+    public void handleWebhook(@RequestBody String payload){
         System.out.println("Webhook received here");
     }
 }
