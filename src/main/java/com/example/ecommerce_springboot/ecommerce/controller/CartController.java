@@ -51,7 +51,5 @@ public class CartController {
         return ResponseEntity.ok(cartItemDTOs);
     }
 
-//------------------------------------------------ ADMIN specific APIs --------------------------------------
-
 
 }

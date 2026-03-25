@@ -8,16 +8,22 @@ import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
 public class OrderItem extends BaseModel {
     @ManyToOne(optional = false, fetch= FetchType.LAZY)
-    private Order order;
+    private CustomerOrder customerOrder;
 
     @OneToOne(optional= false)
     private CartItem cartItem;
 
-    private double itemFinalPrice; //changes based on coupons and promotions applied
+    private Integer quantity;
+    @ManyToOne(optional = false, fetch= FetchType.LAZY)
+    private ProductListing productListing;
+
+    private BigDecimal priceAtPurchase; //changes based on coupons and promotions applied
 
 }

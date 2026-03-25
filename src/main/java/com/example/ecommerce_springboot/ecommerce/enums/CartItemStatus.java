@@ -4,7 +4,7 @@ public enum CartItemStatus {
     RESERVED_IN_CART,
     REMOVED_FROM_CART,
     RESERVED_IN_ORDER,
-    ORDER_COMPLETED,
+    ORDER_PLACED,
     OUT_OF_STOCK,
     IN_DELIVERY,
     DELIVERED,

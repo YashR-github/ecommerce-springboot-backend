@@ -19,9 +19,6 @@ public class InventoryItem extends BaseModel{
     @JoinColumn(nullable = false)
     private ProductListing productListing;
 
-    @Version
-    private Long version;
-
     @Enumerated(EnumType.STRING)
     @Column(name= "item_status")
     private InventoryItemStatus itemStatus;
@@ -32,6 +29,14 @@ public class InventoryItem extends BaseModel{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reserved_cart_item_id")
     private CartItem reservedCartItem;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reserved_order_id")
+    private CustomerOrder reservedOrder;
+
+
+    private LocalDateTime reservedAt;
 
     @Column(name = "reservation_expiry_time")
     private LocalDateTime reservationExpiryTime;

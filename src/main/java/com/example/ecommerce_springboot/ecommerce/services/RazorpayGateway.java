@@ -1,9 +1,8 @@
 package com.example.ecommerce_springboot.ecommerce.services;
 
 
-import com.example.ecommerce_springboot.ecommerce.models.Order;
-import com.example.ecommerce_springboot.ecommerce.models.User;
-import com.example.ecommerce_springboot.ecommerce.repository.OrderRepository;
+import com.example.ecommerce_springboot.ecommerce.models.CustomerOrder;
+import com.example.ecommerce_springboot.ecommerce.repository.CustomerOrderRepository;
 import com.razorpay.PaymentLink;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -15,19 +14,19 @@ import java.math.BigDecimal;
 @Service("razorpay")
 public class RazorpayGateway implements PaymentService{
 
-    private final OrderRepository orderRepository;
+    private final CustomerOrderRepository customerOrderRepository;
     private RazorpayClient razorpayClient;
 
-    public RazorpayGateway(RazorpayClient razorpayClient, OrderRepository orderRepository) {
+    public RazorpayGateway(RazorpayClient razorpayClient, CustomerOrderRepository customerOrderRepository) {
     this.razorpayClient = razorpayClient;
-        this.orderRepository = orderRepository;
+        this.customerOrderRepository = customerOrderRepository;
     }
 
 
 
     @Override
     public String generatePaymentLink(Long orderId, BigDecimal amount) throws RazorpayException {
-        Order order= orderRepository.findById(orderId).orElseThrow(()->new RazorpayException("Order not found"));
+        CustomerOrder customerOrder = customerOrderRepository.findById(orderId).orElseThrow(()->new RazorpayException("Order not found"));
         JSONObject paymentLinkRequest = new JSONObject();
         paymentLinkRequest.put("amount",amount); //10 rs
         paymentLinkRequest.put("currency","INR");
@@ -38,9 +37,9 @@ public class RazorpayGateway implements PaymentService{
         paymentLinkRequest.put("description","Test Payment integration of payment gateways such as Razorpay and Stripe.");
 
         JSONObject customer = new JSONObject();
-        customer.put("name",order.getUser().getName());
+        customer.put("name", customerOrder.getUser().getName());
 //        customer.put("contact",order.getUser().getEmail());
-        customer.put("email",order.getUser().getEmail());
+        customer.put("email", customerOrder.getUser().getEmail());
         paymentLinkRequest.put("customer",customer);
 
         JSONObject notify = new JSONObject();

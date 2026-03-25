@@ -19,6 +19,10 @@ public class User extends BaseModel{
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,orphanRemoval = true)
+    private Cart cart;
+
+
     @PrePersist
     public void prePersist(){
         if(userRole.equals(UserRole.CUSTOMER)){

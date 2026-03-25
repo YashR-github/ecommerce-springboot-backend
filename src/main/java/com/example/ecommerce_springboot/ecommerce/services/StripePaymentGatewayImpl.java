@@ -1,8 +1,8 @@
 package com.example.ecommerce_springboot.ecommerce.services;
 
 
-import com.example.ecommerce_springboot.ecommerce.models.Order;
-import com.example.ecommerce_springboot.ecommerce.repository.OrderRepository;
+import com.example.ecommerce_springboot.ecommerce.models.CustomerOrder;
+import com.example.ecommerce_springboot.ecommerce.repository.CustomerOrderRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentLink;
@@ -14,16 +14,16 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-@Service("StripePaymentGateway")
+@Service("stripe")
 public class StripePaymentGatewayImpl implements PaymentService{
 
-    private final OrderRepository orderRepository;
+    private final CustomerOrderRepository customerOrderRepository;
 
     @Value("${stripe.key.secret}")
     private String stripeKeySecret;
 
-    public StripePaymentGatewayImpl(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
+    public StripePaymentGatewayImpl(CustomerOrderRepository customerOrderRepository) {
+        this.customerOrderRepository = customerOrderRepository;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class StripePaymentGatewayImpl implements PaymentService{
      // Below is the stripe sdk based implementation , one can also integrate stripe apis using resttemplate and using cUrl of stripe and putting it in restTemplate.exchange method
         Stripe.apiKey = stripeKeySecret;
 
-        Order order= orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Order not found"));
+        CustomerOrder customerOrder = customerOrderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Order not found"));
 
         PriceCreateParams priceParams =
                 PriceCreateParams.builder()

@@ -2,6 +2,7 @@ package com.example.ecommerce_springboot.ecommerce.util;
 
 
 import com.example.ecommerce_springboot.ecommerce.dto.*;
+import com.example.ecommerce_springboot.ecommerce.enums.OrderStatus;
 import com.example.ecommerce_springboot.ecommerce.models.*;
 import com.example.ecommerce_springboot.ecommerce.repository.ProductRepository;
 import org.springframework.stereotype.Component;
@@ -61,7 +62,6 @@ public class ObjectDtoMapperUtil {
     }
 
 
-//!! Todo check whether the summary by Admin is enough to be sent to seller directly or have separate DTOs for both role sides
     public static  AdminListingReviewSummaryDTO getAdminListingReviewSummaryDTO(ListingReviewAudit listingRequest) {
         AdminListingReviewSummaryDTO summaryDTO = new AdminListingReviewSummaryDTO();
         summaryDTO.setListingId(listingRequest.getListingId());
@@ -124,5 +124,24 @@ public class ObjectDtoMapperUtil {
         responseDTO.setBrand(productListing.getProduct().getBrand());
         responseDTO.setModel(productListing.getProduct().getModel());
         return responseDTO;
+    }
+
+    public static CustomerOrderResponseDTO toCustomerOrderResponseDTO(CustomerOrder order){
+        CustomerOrderResponseDTO responseDTO = new CustomerOrderResponseDTO();
+        responseDTO.setOrderId(order.getId());
+        responseDTO.setOrderItems(order.getOrderItems().stream().map(ObjectDtoMapperUtil :: toOrderItemDTO).toList());
+        responseDTO.setOrderStatus(OrderStatus.CREATED.name());
+        responseDTO.setTotalOrderAmount(order.getOrderTotal());
+        return responseDTO;
+    }
+
+    public static OrderItemDTO toOrderItemDTO(OrderItem orderItem){
+        OrderItemDTO dto = new OrderItemDTO();
+        dto.setListingId(orderItem.getProductListing().getId());
+        dto.setTitle(orderItem.getProductListing().getTitle());
+        dto.setQuantity(orderItem.getQuantity());
+        dto.setUpdatedAt(orderItem.getUpdatedAt());
+        dto.setTotalPrice(orderItem.getPriceAtPurchase());
+        return dto;
     }
 }

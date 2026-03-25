@@ -2,8 +2,6 @@ package com.example.ecommerce_springboot.ecommerce.controller;
 
 
 import com.example.ecommerce_springboot.ecommerce.dto.*;
-import com.example.ecommerce_springboot.ecommerce.models.Product;
-import com.example.ecommerce_springboot.ecommerce.models.ProductListing;
 import com.example.ecommerce_springboot.ecommerce.services.AdminService;
 import com.example.ecommerce_springboot.ecommerce.services.CustomerService;
 import com.example.ecommerce_springboot.ecommerce.services.SellerService;
@@ -36,7 +34,7 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @GetMapping("/customers/search/listings")  //can rename to catalog
+    @GetMapping("/customers/listings/search")
     public ResponseEntity<Page<CustomerSearchResultProductListingDTO>> getAllSearchBasedFilteredProductListings(@PageableDefault(size=20,page=0, sort= "createdAt", direction = Sort.Direction.DESC) Pageable pageable, String keyword) {
         Page<CustomerSearchResultProductListingDTO> productListingDTOs= customerService.getSearchRelatedListingsForCustomer(pageable,keyword);
         return ResponseEntity.ok(productListingDTOs);
@@ -49,14 +47,6 @@ public class ProductListingController {
         ProductListingCustomerResponseDTO productListingDetails = customerService.getSingleProductListingDetails(productListingId);
         return ResponseEntity.ok(productListingDetails);
     }
-
-
-
-
-
-
-
-
 
 //---------------------------------------------- SELLER specific APIs -----------------------------------------------------------------------
 

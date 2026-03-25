@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class CustomerOrderResponseDTO {
     private Long orderId;
-    private List<CartItemDTO> cartItems;
-    private BigDecimal totalFinalPrice;
+    private List<OrderItemDTO> orderItems;
+    private BigDecimal totalOrderAmount;
     private String orderStatus;
 }

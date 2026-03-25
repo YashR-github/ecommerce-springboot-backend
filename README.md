@@ -23,7 +23,7 @@ The application incorporates the following core functionalities:
 *   **Payment Gateway Integration:** Supports generation of payment links via two different providers: **Stripe** and **Razorpay**. Includes a dedicated endpoint for handling payment webhooks.
 *   **Notification System:** A unified `UnifiedNotificationDispatcher` that conditionally routes email requests either to Kafka (event-driven asynchronous flow) or a direct synchronous dispatcher (SendGrid or SMTP). Successful sign-ups trigger an email notification.
 *   **Redis Caching:** Integration of Redis in the `FakeStoreProductService` to cache product details fetched from external APIs, improving performance and reducing reliance on external calls.
-*   **Admin Tools:** APIs for administrators to fetch comprehensive details on sellers, customers, and system inventory/order details.
+*   **Admin Tools:** APIs for administrators to fetch comprehensive details on sellers, customers, and system inventory/customerOrder details.
 *   **Data Paging/Filtering:** Implementation of Spring Data JPA `Pageable` functionality for returning paginated results in several endpoints (e.g., viewing customer/seller products, admin details).
 
 ## Tech Stack
@@ -176,7 +176,7 @@ Access requires `CUSTOMER` role.
 | `GET` | `/product-details/{productListingId}` | Get details for a single product listing. |
 | `GET` | `/add-to-cart/{productListingId}` | Add an available inventory item to the customer's cart. |
 | `GET` | `/remove-from-cart/{cartItemId}` | Remove a specific item from the cart. |
-| `POST` | `/payments` | Generate a payment link (Stripe or Razorpay implementation) for an order. |
+| `POST` | `/payments` | Generate a payment link (Stripe or Razorpay implementation) for an customerOrder. |
 | `GET` | `/cart` | Get paginated details of the customer's current cart. |
 
 ### Admin Operations
@@ -188,6 +188,6 @@ Access requires `ADMIN` role.
 | `GET` | `/seller-details` | Get paginated details of all sellers. | `/user-management` |
 | `GET` | `/customer-details` | Get paginated details of all customers. | `/user-management` |
 | `GET` | `/inventory-details` | Get filtered, paginated inventory details. | `/products/admin` |
-| `GET` | `/order-id-details` | Get paginated order details by ID. | `/products/admin` |
+| `GET` | `/customerOrder-id-details` | Get paginated customerOrder details by ID. | `/products/admin` |
 | `DELETE` | `/{id}` | Delete a user (requires ADMIN role or self-deletion). | `/user-management` |
 

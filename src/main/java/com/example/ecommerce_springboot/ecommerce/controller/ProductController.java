@@ -6,11 +6,6 @@ import com.example.ecommerce_springboot.ecommerce.exceptions.ProductNotFoundExce
 import com.example.ecommerce_springboot.ecommerce.models.Product;
 import com.example.ecommerce_springboot.ecommerce.services.AdminService;
 import com.example.ecommerce_springboot.ecommerce.services.CustomerService;
-import com.example.ecommerce_springboot.ecommerce.services.ProductService;
-import com.example.ecommerce_springboot.ecommerce.services.SellerService;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,21 +16,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
-//    private final ProductService productService;
-    private final SellerService sellerService;
     private final AdminService adminService;
     private final CustomerService customerService;
 
-
-    public ProductController(@Qualifier("FakeStoreProductService") ProductService productService, AdminService adminService,SellerService sellerService,CustomerService customerService) {
-//        this.productService = productService;
+    public ProductController(AdminService adminService, CustomerService customerService) {
         this.adminService = adminService;
-        this.sellerService = sellerService;
         this.customerService= customerService;
     }
 
-
-// --------------------------------------------Customer APIs-------------------------------------------------------------------------
+// --------------------------------------------Customer APIs----------------------------------------------------------------------------------------------------------
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/customers/homepage")
@@ -44,23 +33,7 @@ public class ProductController {
         return ResponseEntity.ok(catalogueProducts);
     }
 
-
-
-
-// ------------------------------------------------------------ SELLER specific APIs ------------------------------------------------------------------------------
-
-
-//    @PreAuthorize("hasRole('SELLER')")
-//    @GetMapping("/sellers/products")        // pageSize, pageNumber, fieldName, other example- sortOrder
-//    public ResponseEntity<Page<SellerSearchResultProductDTO>> getAllProductsBySearchFiltered(Pageable pageable, @RequestParam(required=false)  String keyword){
-//
-//    }
-
-
-
-
-
-//---------------------------------------------------------ADMIN APIs---------------------------------------------------------------------------------------------
+//---------------------------------------------------------ADMIN APIs-------------------------------------------------------------------------------------------------
 
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -85,16 +58,5 @@ public class ProductController {
         adminService.markProductDeletion(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/inventory/view-details")
-    public Page<Product> getFilteredInventoryByPage(Pageable pageable) {
-
-        return null;
-
-    }
-
 
 }

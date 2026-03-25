@@ -27,7 +27,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> /* forma
 
 
 
-    // Paging query in jpa, uses page number and pageSize to do the correct limit and offset in order to return result
+    // Paging query in jpa, uses page number and pageSize to do the correct limit and offset in customerOrder to return result
     @Override
     Page<Product> findAll(Pageable pageable) ;
 
