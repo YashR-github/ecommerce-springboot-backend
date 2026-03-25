@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -25,6 +26,8 @@ public class ProductListing extends BaseModel{
     private List<String> imageUrls;
     @Enumerated(EnumType.STRING)
     private ListingStatus listingStatus;
+    private LocalDateTime requestedAt;
+    private LocalDateTime approvedAt;
 
     @OneToMany(mappedBy = "productListing", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<InventoryItem> inventoryItems;

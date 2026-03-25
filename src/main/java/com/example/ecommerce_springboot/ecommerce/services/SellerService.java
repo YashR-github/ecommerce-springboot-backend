@@ -23,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,31 +32,19 @@ import java.util.Optional;
 @PreAuthorize("hasRole('SELLER')")
 public class SellerService {
 
-    private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ProductListingRepository productListingRepository;
-    private final CategoryRepository categoryRepository;
     private final AuthenticatedUserUtil authenticatedUserUtil;
     private final ListingReviewAuditRepository listingReviewAuditRepository;
 
-    public SellerService(InventoryItemRepository inventoryItemRepository, UserRepository userRepository, ProductRepository productRepository, ProductListingRepository productListingRepository, CategoryRepository categoryRepository, AuthenticatedUserUtil authenticatedUserUtil, ListingReviewAuditRepository listingReviewAuditRepository) {
-        this.inventoryItemRepository = inventoryItemRepository;
+    public SellerService(UserRepository userRepository, ProductRepository productRepository, ProductListingRepository productListingRepository, AuthenticatedUserUtil authenticatedUserUtil, ListingReviewAuditRepository listingReviewAuditRepository) {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.productListingRepository = productListingRepository;
-        this.categoryRepository = categoryRepository;
         this.authenticatedUserUtil = authenticatedUserUtil;
         this.listingReviewAuditRepository = listingReviewAuditRepository;
     }
-
-// ------------------------------------------- Product services --------------------------------------------------------------------------
-
-
-
-
-
-
 
 
 // ------------------------------------------- Product Listing services ---------------------------------------------------------------------------
@@ -102,6 +91,7 @@ public class SellerService {
         productListing.setDescription(description);
         productListing.setBasePrice(basePrice);
         productListing.setImageUrls(imageUrls);
+        productListing.setRequestedAt(LocalDateTime.now());
         productListing.setListingStatus(ListingStatus.PENDING_APPROVAL);
 //        productListing.setInventoryItems(new ArrayList<>());
 
@@ -121,7 +111,6 @@ public class SellerService {
         if (optionalProductListing.isEmpty()) {
             throw new ProductListingNotFoundException("No product listing found for the given id for the seller.");
         }
-        //todo : in admin side soft delete products associated with the listing and soft delete listing
         //delegate to admin
         boolean exists = listingReviewAuditRepository
                 .existsByListingIdAndActionTypeAndReviewStatus(
@@ -137,6 +126,7 @@ public class SellerService {
         ListingReviewAudit listingReviewAudit = new ListingReviewAudit();
         listingReviewAudit.setListingId(productListingId);
         listingReviewAudit.setActionType(ActionType.DELETE);
+        listingReviewAudit.setRequestedAt(LocalDateTime.now());
         listingReviewAudit.setRequestedBy(seller);
         listingReviewAudit.setReviewedBy(null);
         listingReviewAudit.setReviewStatus(ReviewStatus.PENDING);
@@ -161,6 +151,7 @@ public class SellerService {
             updatedProductListing.setProduct(originalListing.getProduct());
         }
         updatedProductListing.setListingCreator(originalListing.getListingCreator());
+        updatedProductListing.setRequestedAt(LocalDateTime.now());
         updatedProductListing.setTitle((updateDTO.getTitle() != null && !updateDTO.getTitle().isBlank()) ? updateDTO.getTitle() : originalListing.getTitle());
         updatedProductListing.setDescription((updateDTO.getDescription() != null && !updateDTO.getDescription().isBlank()) ? updateDTO.getDescription() : originalListing.getDescription());
         updatedProductListing.setQuantityListed(updateDTO.getQuantity() != null ? updateDTO.getQuantity() : originalListing.getQuantityListed());
@@ -185,6 +176,10 @@ public class SellerService {
         ListingReviewAudit listingReviewAudit = new ListingReviewAudit();
         try {
             listingReviewAudit.setListingId(productListing.getId());
+            listingReviewAudit.setProductId(productListing.getProduct().getId());
+            listingReviewAudit.setQuantity(productListing.getQuantityListed());
+            listingReviewAudit.setTitle(productListing.getTitle());
+            listingReviewAudit.setRequestedAt(LocalDateTime.now());
             listingReviewAudit.setActionType(actionType);
             listingReviewAudit.setRequestedBy(productListing.getListingCreator());
             listingReviewAudit.setReviewedBy(null);

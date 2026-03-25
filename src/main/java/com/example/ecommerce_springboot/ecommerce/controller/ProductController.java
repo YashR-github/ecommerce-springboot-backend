@@ -46,14 +46,6 @@ public class ProductController {
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping(value = "/admin/products/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long productToUpdateId , @RequestBody ProductUpdateReqDTO productDto)
-    {  Product product = adminService.updateProduct(productToUpdateId, productDto.getTitle(), productDto.getShortDescription(), productDto.getLongDescription(), productDto.getBrand(),  productDto.getWeightInGrams(), productDto.getBaseImageUrl(), productDto.getCategoryId(),productDto.getProductStatus());
-        return new ResponseEntity<>(product,HttpStatus.OK);
-    }
-
-
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/admin/delete/product/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) throws ProductNotFoundException {
         adminService.markProductDeletion(id);

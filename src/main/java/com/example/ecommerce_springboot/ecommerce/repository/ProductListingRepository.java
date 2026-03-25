@@ -45,7 +45,7 @@ public interface ProductListingRepository extends JpaRepository<ProductListing,L
 
 //    Optional<ProductListing> findByIdAndListingStatusAndIsDeletedFalse(Long listingId, ListingStatus listingStatus);
 
-    Optional<ProductListing> findByIdAndListingCreatorAndListingStatusAndIsDeletedFalse(Long listingId, User user, ListingStatus listingStatus);
+   Optional<ProductListing> findByIdAndListingCreatorAndListingStatusAndIsDeletedFalse(Long listingId, User user, ListingStatus listingStatus);
 
     Optional<ProductListing> findByIdAndListingStatusInAndIsDeletedFalse(Long listingId, List<ListingStatus> listingStatus);
     Optional<ProductListing> findByIdAndListingStatusAndIsDeletedFalse(Long listingId, ListingStatus listingStatus);

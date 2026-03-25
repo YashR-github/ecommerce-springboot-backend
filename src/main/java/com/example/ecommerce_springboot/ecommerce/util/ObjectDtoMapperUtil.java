@@ -65,9 +65,12 @@ public class ObjectDtoMapperUtil {
     public static  AdminListingReviewSummaryDTO getAdminListingReviewSummaryDTO(ListingReviewAudit listingRequest) {
         AdminListingReviewSummaryDTO summaryDTO = new AdminListingReviewSummaryDTO();
         summaryDTO.setListingId(listingRequest.getListingId());
-        summaryDTO.setProductId(listingRequest.getProduct().getId());
+        summaryDTO.setListingTitle(listingRequest.getTitle());
+        summaryDTO.setProductId(listingRequest.getProductId());
         summaryDTO.setActionType(listingRequest.getActionType().name());
+        summaryDTO.setQuantity(listingRequest.getQuantity());
         summaryDTO.setRequestedBy(listingRequest.getRequestedBy());
+        summaryDTO.setRequestedAt(listingRequest.getRequestedAt());
         summaryDTO.setReviewStatus(listingRequest.getReviewStatus().name());
         summaryDTO.setReason(listingRequest.getReason());
         summaryDTO.setReviewedAt(listingRequest.getReviewedAt());
@@ -78,7 +81,7 @@ public class ObjectDtoMapperUtil {
         SellerListingReviewSummaryDTO sellerListingReviewSummaryDTO = new SellerListingReviewSummaryDTO();
         sellerListingReviewSummaryDTO.setReviewId(listingReviewAudit.getId());
         sellerListingReviewSummaryDTO.setListingId(listingReviewAudit.getListingId());
-        sellerListingReviewSummaryDTO.setProductId(listingReviewAudit.getProduct().getId());
+        sellerListingReviewSummaryDTO.setProductId(listingReviewAudit.getProductId());
         sellerListingReviewSummaryDTO.setActionType(listingReviewAudit.getActionType().name());
         sellerListingReviewSummaryDTO.setQuantity(listingReviewAudit.getQuantity());
         sellerListingReviewSummaryDTO.setRequestedAt(listingReviewAudit.getRequestedAt());

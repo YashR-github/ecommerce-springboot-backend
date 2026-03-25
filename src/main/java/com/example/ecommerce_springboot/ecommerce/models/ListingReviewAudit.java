@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 public class ListingReviewAudit extends BaseModel {
     private Long listingId;
     private String title;
-    @ManyToOne
-    private Product product;
+    private Long productId;
     @Enumerated(EnumType.STRING)
     private ActionType actionType;
     @ManyToOne

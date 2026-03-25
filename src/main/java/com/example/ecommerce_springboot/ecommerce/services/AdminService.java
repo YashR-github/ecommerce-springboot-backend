@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -74,13 +75,6 @@ public class AdminService {
 
 
     @Transactional
-    public Product updateProduct (Long productToUpdateId, String title, String shortDescription, String longDescription, String brand, BigDecimal weightInGrams, String baseImageUrl,Long categoryId, ProductStatus productStatus) {
-
-    return null;
-    }
-
-
-    @Transactional
     public void markProductDeletion(Long id)  {
         Optional<Product> optionalProduct= productRepository.findByIdAndIsDeletedFalse(id);
         if(optionalProduct.isEmpty()){
@@ -109,7 +103,7 @@ public class AdminService {
     public AdminListingReviewSummaryDTO handleCreateProductListingApproveRequest(Long auditId, String reason){
     User user=  authenticatedUserUtil.getCurrentUser();
     ListingReviewAudit listingRequest= verifyActionTypeAndPendingStatus(auditId, ActionType.CREATE);
-    Optional<ProductListing> optionalProductListing = productListingRepository.findByIdAndListingCreatorAndListingStatusAndIsDeletedFalse(listingRequest.getListingId(), user, ListingStatus.PENDING_APPROVAL);
+    Optional<ProductListing> optionalProductListing = productListingRepository.findByIdAndListingStatusAndIsDeletedFalse(listingRequest.getListingId(), ListingStatus.PENDING_APPROVAL);
     if(optionalProductListing.isEmpty()) { 
         throw new ProductListingNotFoundException("Something went wrong. No associated Product Listing found");
     }
@@ -119,6 +113,7 @@ public class AdminService {
     listingRequest.setReviewedAt(java.time.LocalDateTime.now());
     listingReviewAuditRepository.save(listingRequest);
     ProductListing productListing = optionalProductListing.get();
+    productListing.setApprovedAt(LocalDateTime.now());
     createInventoryItemsByQuantity(productListing);
     productListing.setListingStatus(ListingStatus.ACTIVE);
     productListingRepository.save(productListing);
@@ -134,7 +129,8 @@ public class AdminService {
        listingReviewAuditRequest.setReviewedBy(authenticatedUserUtil.getCurrentUser());
        listingReviewAuditRequest.setReviewedAt(java.time.LocalDateTime.now());
        listingReviewAuditRepository.save(listingReviewAuditRequest);
-       ProductListing productListing = productListingRepository.findByIdAndListingCreatorAndListingStatusAndIsDeletedFalse(listingReviewAuditRequest.getListingId(), user, ListingStatus.PENDING_APPROVAL).orElseThrow(()-> new ProductListingNotFoundException("No associated Product Listing found."));
+       ProductListing productListing = productListingRepository.findByIdAndListingStatusAndIsDeletedFalse(listingReviewAuditRequest.getListingId(), ListingStatus.PENDING_APPROVAL).orElseThrow(()-> new ProductListingNotFoundException("No associated Product Listing found."));
+       productListing.setApprovedAt(LocalDateTime.now());
        productListing.setListingStatus(ListingStatus.ACTIVE);
        productListingRepository.save(productListing);
        return ObjectDtoMapperUtil.getAdminListingReviewSummaryDTO(listingReviewAuditRequest);
@@ -150,7 +146,7 @@ public class AdminService {
         listingRequest.setReviewedAt(java.time.LocalDateTime.now());
         listingReviewAuditRepository.save(listingRequest);
         deleteInventoryItems(listingRequest.getListingId());
-        ProductListing productListing= productListingRepository.findByIdAndListingCreatorAndListingStatusAndIsDeletedFalse(listingRequest.getListingId(), user, ListingStatus.PENDING_APPROVAL).orElseThrow(()-> new ProductListingNotFoundException("Product Lisitng already deleted or does not exist."));
+        ProductListing productListing= productListingRepository.findByIdAndListingStatusAndIsDeletedFalse(listingRequest.getListingId(), ListingStatus.PENDING_APPROVAL).orElseThrow(()-> new ProductListingNotFoundException("Product Lisitng already deleted or does not exist."));
         productListing.setListingStatus(ListingStatus.DELETED);
         productListingRepository.save(productListing);
         return ObjectDtoMapperUtil.getAdminListingReviewSummaryDTO(listingRequest);
@@ -180,7 +176,7 @@ public class AdminService {
         viewResponseDTO.setSellerName(productListing.getListingCreator().getName());
         viewResponseDTO.setSellerEmail(productListing.getListingCreator().getEmail());
         viewResponseDTO.setSellerJoined(productListing.getListingCreator().getCreatedAt());
-        viewResponseDTO.setProductId(listingRequest.getProduct().getId());
+        viewResponseDTO.setProductId(listingRequest.getProductId());
         viewResponseDTO.setQuantity(listingRequest.getQuantity());
         viewResponseDTO.setBasePrice(productListing.getBasePrice());
         viewResponseDTO.setTitle(productListing.getTitle());
@@ -192,8 +188,6 @@ public class AdminService {
 
         return viewResponseDTO;
     }
-
-
 
 
 
@@ -230,10 +224,13 @@ public class AdminService {
           AdminListingReviewSummaryDTO adminListingReviewSummaryDTO = new AdminListingReviewSummaryDTO();
 
           adminListingReviewSummaryDTO.setListingId(listingAudit.getListingId());
-          adminListingReviewSummaryDTO.setProductId(listingAudit.getProduct().getId());
+          adminListingReviewSummaryDTO.setListingTitle(listingAudit.getTitle());
+          adminListingReviewSummaryDTO.setProductId(listingAudit.getProductId());
           adminListingReviewSummaryDTO.setRequestedBy(listingAudit.getRequestedBy());
           adminListingReviewSummaryDTO.setActionType(listingAudit.getActionType().name());
+          adminListingReviewSummaryDTO.setQuantity(listingAudit.getQuantity());
           adminListingReviewSummaryDTO.setReviewedBy(listingAudit.getReviewedBy());
+          adminListingReviewSummaryDTO.setRequestedAt(listingAudit.getRequestedAt());
           adminListingReviewSummaryDTO.setReviewStatus(listingAudit.getReviewStatus().name());
           adminListingReviewSummaryDTO.setReviewedAt(listingAudit.getReviewedAt());
           adminListingReviewSummaryDTO.setReason(listingAudit.getReason());
