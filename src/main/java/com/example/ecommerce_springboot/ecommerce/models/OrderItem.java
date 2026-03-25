@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Setter
 public class OrderItem extends BaseModel {
     @ManyToOne(optional = false, fetch= FetchType.LAZY)
-    private CustomerOrder customerOrder;
+    private CustomerOrder order;
 
     @OneToOne(optional= false)
     private CartItem cartItem;

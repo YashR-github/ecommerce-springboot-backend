@@ -47,7 +47,7 @@ public class CustomerService {
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final CustomerOrderRepository customerOrderRepository;
-    @Value("${stripe.webhook.secret}")
+    @Value("${stripe.key.secret}")
     private String webhookSecret;
 
     public CustomerService(AuthenticatedUserUtil authenticatedUserUtil, InventoryItemRepository inventoryItemRepository, ObjectDtoMapperUtil objectDtoMapperUtil, ProductRepository productRepository, CartRepository cartRepository, ProductListingRepository productListingRepository, CartItemRepository cartItemRepository, @Qualifier("stripe") PaymentService paymentService, PaymentRepository paymentRepository, CustomerOrderRepository customerOrderRepository) {
@@ -365,7 +365,7 @@ public class CustomerService {
                 continue;
             }
             OrderItem oi = new OrderItem();
-            oi.setCustomerOrder(order);
+            oi.setOrder(order);
             oi.setProductListing(cartItem.getProductListing());
             oi.setQuantity(cartItem.getQuantity());
             oi.setPriceAtPurchase(cartItem.getCartItemPrice());
