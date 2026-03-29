@@ -47,7 +47,7 @@ public class CustomerService {
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final CustomerOrderRepository customerOrderRepository;
-    @Value("${stripe.key.secret}")
+    @Value("${stripe.webhook.secret}")
     private String webhookSecret;
 
     public CustomerService(AuthenticatedUserUtil authenticatedUserUtil, InventoryItemRepository inventoryItemRepository, ObjectDtoMapperUtil objectDtoMapperUtil, ProductRepository productRepository, CartRepository cartRepository, ProductListingRepository productListingRepository, CartItemRepository cartItemRepository, @Qualifier("stripe") PaymentService paymentService, PaymentRepository paymentRepository, CustomerOrderRepository customerOrderRepository) {

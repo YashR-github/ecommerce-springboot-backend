@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/payments")
+@RequestMapping
 public class PaymentController {
     private final CustomerService customerService;
 
@@ -20,7 +20,7 @@ public class PaymentController {
 
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @PostMapping("/{orderId}/initiate")
+    @PostMapping("payments/{orderId}/initiate")
     public ResponseEntity<String> initiatePayment( @PathVariable Long orderId) throws StripeException, RazorpayException {
         String paymentLink =
                 customerService.initiatePaymentForOrder(orderId);
@@ -30,7 +30,7 @@ public class PaymentController {
 
 
 
-    @PostMapping
+    @PostMapping("/webhooks/stripe")
     public ResponseEntity<String> handleStripeWebhook(@RequestBody String rawPayload, @RequestHeader("Stripe-Signature") String stripeSignature) {
         customerService.handleStripeWebhook(rawPayload, stripeSignature);
         return new ResponseEntity<>("Webhook processed", HttpStatus.OK);

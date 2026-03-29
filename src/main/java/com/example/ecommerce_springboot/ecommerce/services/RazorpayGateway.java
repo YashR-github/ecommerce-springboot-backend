@@ -18,10 +18,9 @@ public class RazorpayGateway implements PaymentService{
     private RazorpayClient razorpayClient;
 
     public RazorpayGateway(RazorpayClient razorpayClient, CustomerOrderRepository customerOrderRepository) {
-    this.razorpayClient = razorpayClient;
+        this.razorpayClient = razorpayClient;
         this.customerOrderRepository = customerOrderRepository;
     }
-
 
 
     @Override
