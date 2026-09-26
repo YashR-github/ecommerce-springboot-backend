@@ -57,6 +57,13 @@ public class ObjectDtoMapperUtil {
     }
 
 
+    public static ProductCategoryResponseDTO getProductCategoryResponseDTO(Category category){
+        ProductCategoryResponseDTO responseDTO = new ProductCategoryResponseDTO();
+        responseDTO.setCategoryType(category.getCategoryType().toString());
+        responseDTO.setDescription(category.getDescription());
+        return responseDTO;
+    }
+
     public static  AdminListingReviewSummaryDTO getAdminListingReviewSummaryDTO(ListingReviewAudit listingRequest) {
         AdminListingReviewSummaryDTO summaryDTO = new AdminListingReviewSummaryDTO();
         summaryDTO.setListingId(listingRequest.getListingId());

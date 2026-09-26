@@ -89,6 +89,28 @@ public class AdminService {
 //========================================== product listing handling========================================
 
     @Transactional
+    public ProductCategoryResponseDTO createNewProductCategory(String categoryType, String description){
+      CategoryType type;
+      try{
+          type = CategoryType.valueOf(categoryType.toUpperCase());
+      }
+      catch(IllegalArgumentException e){
+          throw new CategoryNotFoundException("The input category is not registered as enum value.");
+
+      }
+      Optional<Category> optionalCategory = categoryRepository.findByCategoryType(type);
+      if(optionalCategory.isPresent()){
+          throw new CategoryAlreadyExistException("The input category already exists.");
+      }
+      Category category = new Category();
+      category.setCategoryType(type);
+      category.setDescription(description);
+      categoryRepository.save(category);
+      return ObjectDtoMapperUtil.getProductCategoryResponseDTO(category);
+    }
+
+
+    @Transactional
     public Page<AdminListingReviewSummaryDTO> getAllProductListingReviewRequests(AdminListingReviewFilterReqDTO filterDTO) {
         Specification<ListingReviewAudit> specification = new AdminListingReviewFilterSpecification(filterDTO);
         Sort sort = "desc".equalsIgnoreCase(filterDTO.getSortOrder())

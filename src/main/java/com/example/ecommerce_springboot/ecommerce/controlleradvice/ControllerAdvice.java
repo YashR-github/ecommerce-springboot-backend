@@ -2,7 +2,7 @@ package com.example.ecommerce_springboot.ecommerce.controlleradvice;
 
 import com.example.ecommerce_springboot.auth.dtos.ResponseDTO;
 import com.example.ecommerce_springboot.ecommerce.dto.ErrorDto;
-import com.example.ecommerce_springboot.ecommerce.exceptions.ProductNotFoundException;
+import com.example.ecommerce_springboot.ecommerce.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,13 +17,56 @@ import java.util.Map;
 @RestControllerAdvice
 public class ControllerAdvice {
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleProductNotFoundException(Exception e){
-        ErrorDto errorDto = new ErrorDto();
-        errorDto.setMessage(e.getMessage()); // getMessage extracts only the readable message from stack trace message, setMessage sets the message to object errorDto
-        ResponseEntity<ErrorDto> response = new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
-        return response;
+    @ExceptionHandler({ProductNotFoundException.class, CategoryNotFoundException.class, ProductListingNotFoundException.class, ReviewRequestNotFoundException.class, CartItemNotFoundException.class})
+    public ResponseEntity<ResponseDTO<Map<String, Object>>> handleNotFoundExceptions(
+            ResourceNotFoundException ex, WebRequest request) {
+
+        Map<String, Object> errorDetails = new HashMap<>();
+
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("error", "Entity Not Found");
+        errorDetails.put("details", ex.getMessage());
+        errorDetails.put("status", HttpStatus.NOT_FOUND.value());
+        errorDetails.put(
+                "path",
+                ((ServletWebRequest) request).getRequest().getRequestURI()
+        );
+
+        ResponseDTO<Map<String, Object>> responseDTO =
+                new ResponseDTO<>("Request Failed", errorDetails);
+
+        return new ResponseEntity<>(
+                responseDTO,
+                HttpStatus.NOT_FOUND
+        );
     }
+
+
+    @ExceptionHandler({SellerProductAlreadyExistException.class, CategoryAlreadyExistException.class})
+    public ResponseEntity<ResponseDTO<Map<String, Object>>> handleAlreadyExistsExceptions(
+            ResourceAlreadyExistException ex, WebRequest request) {
+
+        Map<String, Object> errorDetails = new HashMap<>();
+
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("error", "Entity Already Exists");
+        errorDetails.put("details", ex.getMessage());
+        errorDetails.put("status", HttpStatus.CONFLICT.value());
+        errorDetails.put(
+                "path",
+                ((ServletWebRequest) request).getRequest().getRequestURI()
+        );
+
+        ResponseDTO<Map<String, Object>> responseDTO =
+                new ResponseDTO<>("Request Failed", errorDetails);
+
+        return new ResponseEntity<>(
+                responseDTO,
+                HttpStatus.CONFLICT
+        );
+    }
+
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDTO<Map<String, Object>>> handleException(

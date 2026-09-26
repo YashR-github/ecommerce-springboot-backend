@@ -38,6 +38,14 @@ public class ProductController {
 
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/create/category")
+    public ResponseEntity<ProductCategoryResponseDTO> createProductCategory(@RequestBody ProductCategoryReqDTO categoryReqDto){
+        ProductCategoryResponseDTO responseDTO = adminService.createNewProductCategory(categoryReqDto.getCategoryType(), categoryReqDto.getDescription());
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/admin/create/product")
     public ResponseEntity<ProductCreateResponseDto> createNewProduct(@RequestBody NewProductCreateReqDTO productReqDto)
     {   ProductCreateResponseDto productListingResDto = adminService.createNewProduct(productReqDto.getName(),productReqDto.getShortDescription(),productReqDto.getLongDescription(),productReqDto.getBrand(),productReqDto.getModel(), productReqDto.getWeightInGrams(), productReqDto.getBasePrice(), productReqDto.getBaseImageUrl(),productReqDto.getCategory().toString().toUpperCase());
