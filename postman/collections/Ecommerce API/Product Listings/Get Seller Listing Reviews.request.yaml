@@ -1,0 +1,7 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/product-listings/sellers/product-listings/filtered?page=0&size=20&sort=createdAt,desc'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

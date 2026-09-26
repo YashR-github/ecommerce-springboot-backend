@@ -36,6 +36,7 @@ public class AuthSellerService implements AuthService {
 
 
 
+
     @Transactional
     public UserSignupResponseDTO signUp(String name, String phone, String email, String password, UserRole userRole) throws UserAlreadyExistException {
         if (userRepository.existsByPhoneAndIsDeletedFalse(phone)) {

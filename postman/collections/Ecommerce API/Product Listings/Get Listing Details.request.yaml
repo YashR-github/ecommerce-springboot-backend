@@ -1,0 +1,7 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/product-listings/customers/listing/view-details/{{productListingId}}'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

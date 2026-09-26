@@ -172,10 +172,10 @@ public class AdminService {
         ProductListingAdminViewDTO viewResponseDTO = new ProductListingAdminViewDTO();
         viewResponseDTO.setListingReviewId(listingRequest.getId());
         viewResponseDTO.setListingId(listingRequest.getListingId());
-        viewResponseDTO.setSellerId(productListing.getListingCreator().getId());
-        viewResponseDTO.setSellerName(productListing.getListingCreator().getName());
-        viewResponseDTO.setSellerEmail(productListing.getListingCreator().getEmail());
-        viewResponseDTO.setSellerJoined(productListing.getListingCreator().getCreatedAt());
+        viewResponseDTO.setSellerId(productListing.getRequestedBy().getId());
+        viewResponseDTO.setSellerName(productListing.getRequestedBy().getName());
+        viewResponseDTO.setSellerEmail(productListing.getRequestedBy().getEmail());
+        viewResponseDTO.setSellerJoined(productListing.getRequestedBy().getCreatedAt());
         viewResponseDTO.setProductId(listingRequest.getProductId());
         viewResponseDTO.setQuantity(listingRequest.getQuantity());
         viewResponseDTO.setBasePrice(productListing.getBasePrice());

@@ -18,7 +18,7 @@ public class ProductListing extends BaseModel{
     @ManyToOne
     private Product product;
     @ManyToOne
-    private User listingCreator;
+    private User requestedBy;
     private Integer quantityListed;
     private BigDecimal basePrice;
     private String title; //subject of listing

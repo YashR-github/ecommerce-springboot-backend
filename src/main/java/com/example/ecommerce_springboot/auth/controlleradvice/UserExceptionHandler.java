@@ -64,4 +64,28 @@ public class UserExceptionHandler {
         return new ResponseEntity<>(responseDTO, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ResponseDTO<Map<String, Object>>> handleException(
+            Exception ex, WebRequest request) {
+
+        Map<String, Object> errorDetails = new HashMap<>();
+
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("error", "Internal Server Error");
+        errorDetails.put("details", ex.getMessage());
+        errorDetails.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorDetails.put(
+                "path",
+                ((ServletWebRequest) request).getRequest().getRequestURI()
+        );
+
+        ResponseDTO<Map<String, Object>> responseDTO =
+                new ResponseDTO<>("Request Failed", errorDetails);
+
+        return new ResponseEntity<>(
+                responseDTO,
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
 }

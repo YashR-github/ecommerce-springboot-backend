@@ -50,7 +50,8 @@ public class SecurityConfig {
                                                 .requestMatchers("/products/sellers/**","/seller/**").hasRole("SELLER")
                                                 .requestMatchers("/products/customers/**", "/customers/**").hasRole("CUSTOMER")
                                                 .requestMatchers("/products/admin/**", "/admin/**", "/user-management/**").hasRole("ADMIN")
-                                                .anyRequest().authenticated());
+                        .requestMatchers("/error").permitAll()
+                        .anyRequest().authenticated());
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();

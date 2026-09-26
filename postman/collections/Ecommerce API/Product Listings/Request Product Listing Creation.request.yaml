@@ -1,0 +1,22 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/product-listings/sellers/product-listing/request-create'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "productId": 1,
+      "quantity": 10,
+      "basePrice": 17999,
+      "title": "Demo Listing",
+      "description": "Sample listing description",
+      "imageUrls": [
+        "https://example.com/listing-1.jpg"
+      ]
+    }

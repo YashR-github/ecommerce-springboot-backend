@@ -1,0 +1,7 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/product-listings/sellers/product-listing/request-delete/{{id}}'
+order: 5000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

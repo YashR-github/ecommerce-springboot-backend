@@ -1,0 +1,346 @@
+$kind: collection
+version: 3
+info:
+  name: 'Ecommerce API'
+  description: |-
+    Collection generated from Spring Boot controller implementation in the selected folder.
+    Base URL defaults to localhost:8080 because application configuration is gitignored and could not be read.
+variables:
+  - key: 'baseUrl'
+    value: 'http://localhost:8080'
+  - key: 'token'
+    value: ''
+  - key: 'productListingId'
+    value: '1'
+  - key: 'cartItemId'
+    value: '1'
+  - key: 'orderId'
+    value: '1'
+  - key: 'id'
+    value: '1'
+  - key: 'listingId'
+    value: '1'
+  - key: 'stripeSignature'
+    value: 'test_signature'
+items:
+  - name: 'Auth'
+    items:
+      - name: 'Seller Signup'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/auth/seller/signup'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "name": "Seller One",
+                "phone": "9876543210",
+                "email": "seller@example.com",
+                "password": "secret123"
+              }
+      - name: 'Customer Signup'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/auth/customer/signup'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "name": "Customer One",
+                "phone": "9123456789",
+                "email": "customer@example.com",
+                "password": "secret123"
+              }
+      - name: 'Admin Signup'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/auth/admin/signup'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "name": "Admin One",
+                "phone": "9012345678",
+                "email": "admin@example.com",
+                "password": "secret123"
+              }
+      - name: 'Login'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/auth/login'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "email": "customer@example.com",
+                "phone": "",
+                "password": "secret123"
+              }
+  - name: 'Cart'
+    items:
+      - name: 'Get Customer Cart'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/customers/cart?page=0&size=20&sort=createdAt,desc'
+      - name: 'Add Item To Cart'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/customers/cart/add-item/{{productListingId}}?page=0&size=20&sort=createdAt,desc'
+      - name: 'Remove Item From Cart'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/customers/cart/remove-item/{{cartItemId}}?page=0&size=20&sort=createdAt,desc'
+  - name: 'Orders'
+    items:
+      - name: 'Customer Checkout'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/orders/customers/checkout'
+  - name: 'Payments'
+    items:
+      - name: 'Initiate Payment'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/payments/{{orderId}}/initiate'
+      - name: 'Stripe Webhook'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Content-Type'
+              value: 'application/json'
+            - key: 'Stripe-Signature'
+              value: '{{stripeSignature}}'
+          url: '{{baseUrl}}/webhooks/stripe'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "id": "evt_test_webhook"
+              }
+  - name: 'Products'
+    items:
+      - name: 'Get Homepage Products'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/products/customers/homepage'
+      - name: 'Create Product'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/products/admin/create/product'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "name": "Demo Phone",
+                "shortDescription": "This is a sample short description with more than fifty characters.",
+                "longDescription": "Sample long description for the product.",
+                "brand": "DemoBrand",
+                "model": "X100",
+                "weightInGrams": 250,
+                "basePrice": 19999,
+                "baseImageUrl": "https://example.com/product.jpg",
+                "category": "ELECTRONICS"
+              }
+      - name: 'Delete Product'
+        request:
+          method: 'DELETE'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/products/admin/delete/product/{{id}}'
+  - name: 'Product Listings'
+    items:
+      - name: 'Search Listings For Customer'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/product-listings/customers/listings/search?page=0&size=20&sort=createdAt,desc&keyword=phone'
+      - name: 'Get Listing Details'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/product-listings/customers/listing/view-details/{{productListingId}}'
+      - name: 'Get Seller Listing Reviews'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/product-listings/sellers/product-listings/filtered?page=0&size=20&sort=createdAt,desc'
+      - name: 'Request Product Listing Creation'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/product-listings/sellers/product-listing/request-create'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "productId": 1,
+                "quantity": 10,
+                "basePrice": 17999,
+                "title": "Demo Listing",
+                "description": "Sample listing description",
+                "imageUrls": [
+                  "https://example.com/listing-1.jpg"
+                ]
+              }
+      - name: 'Request Product Listing Deletion'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/product-listings/sellers/product-listing/request-delete/{{id}}'
+      - name: 'Request Product Listing Update'
+        request:
+          method: 'PATCH'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/product-listings/sellers/product-listing/update/{{listingId}}'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "productId": 1,
+                "quantity": 20,
+                "basePrice": 16999,
+                "title": "Updated Demo Listing",
+                "description": "Updated listing description",
+                "imageUrls": [
+                  "https://example.com/listing-updated.jpg"
+                ]
+              }
+      - name: 'Get Admin Review Requests'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+          url: '{{baseUrl}}/product-listings/admin/product-listings/view-filtered-page?page=0&size=20&sort=createdAt,desc'
+      - name: 'Get Admin Listing Details'
+        request:
+          method: 'GET'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/product-listings/admin/product-listings/listing/details'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "auditId": 1,
+                "reason": "Inspect listing details"
+              }
+      - name: 'Approve Listing Create Request'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/product-listings/admin/product-listings/listing/create/approve-request'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "auditId": 1,
+                "reason": "Approved"
+              }
+      - name: 'Approve Listing Update Request'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/product-listings/admin/product-listings/listing/update/approve-request'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "auditId": 1,
+                "reason": "Approved"
+              }
+      - name: 'Approve Listing Delete Request'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/product-listings/admin/product-listings/listing/delete/approve-request'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "auditId": 1,
+                "reason": "Approved"
+              }
+      - name: 'Reject Listing Request'
+        request:
+          method: 'POST'
+          headers:
+            - key: 'Authorization'
+              value: 'Bearer {{token}}'
+            - key: 'Content-Type'
+              value: 'application/json'
+          url: '{{baseUrl}}/product-listings/admin/product-listings/listing/reject-request'
+          body:
+            mode: 'raw'
+            raw: |-
+              {
+                "auditId": 1,
+                "reason": "Rejected due to policy violation"
+              }

@@ -35,7 +35,7 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @GetMapping("/customers/listings/search")
+    @GetMapping("/customers/search")
     public ResponseEntity<Page<CustomerSearchResultProductListingDTO>> getAllSearchBasedFilteredProductListings(@PageableDefault(size=20,page=0, sort= "createdAt", direction = Sort.Direction.DESC) Pageable pageable, String keyword) {
         Page<CustomerSearchResultProductListingDTO> productListingDTOs= customerService.getSearchRelatedListingsForCustomer(pageable,keyword);
         return ResponseEntity.ok(productListingDTOs);
@@ -43,7 +43,7 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @GetMapping("/customers/listing/view-details/{productListingId}")
+    @GetMapping("/customers/view-details/{productListingId}")
     public ResponseEntity<ProductListingCustomerResponseDTO> getSingleListingDetailsById(@PathVariable("productListingId") Long productListingId) {
         ProductListingCustomerResponseDTO productListingDetails = customerService.getSingleProductListingDetails(productListingId);
         return ResponseEntity.ok(productListingDetails);
@@ -54,7 +54,7 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('SELLER')")
-    @GetMapping("/sellers/product-listings/filtered")
+    @GetMapping("/sellers/filtered")
     // Pagination for getAll products  // pageSize, pageNumber, fieldName, other example- sortOrder
     public ResponseEntity<Page<SellerListingReviewSummaryDTO>> getAllSellerProductListingReviews(@ModelAttribute SellerProductListingsFilterReqDTO filterDTO){
         Page<SellerListingReviewSummaryDTO> response = sellerService.getAllAssociatedListingReviewsFiltered(filterDTO);
@@ -63,7 +63,7 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('SELLER')")
-    @PostMapping(value = "/sellers/product-listing/request-create")
+    @PostMapping(value = "/sellers/request-create")
     public ResponseEntity<SellerListingReviewSummaryDTO> requestProductListingCreationApprove(@RequestBody ProductListingCreateReqDto listingReqDto)
     {   SellerListingReviewSummaryDTO sellerProductListingResponseDTO = sellerService.requestProductListingCreation(listingReqDto.getProductId(),listingReqDto.getQuantity(), listingReqDto.getBasePrice(),listingReqDto.getTitle(), listingReqDto.getDescription(), listingReqDto.getImageUrls());
         return new ResponseEntity<>(sellerProductListingResponseDTO, HttpStatus.OK);
@@ -71,14 +71,14 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('SELLER')")
-    @GetMapping("/sellers/product-listing/request-delete/{id}")
+    @GetMapping("/sellers/request-delete/{id}")
     public ResponseEntity<Void> requestProductListingDeletion(@PathVariable("id") Long listingId){
         sellerService.requestProductListingDeletion(listingId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('SELLER')")
-    @PatchMapping("/sellers/product-listing/update/{listingId}")
+    @PatchMapping("/sellers/update/{listingId}")
     public ResponseEntity<SellerListingReviewSummaryDTO> requestProductListingUpdation(@PathVariable("listingId") Long listingId, @RequestBody ProductListingUpdateReqDTO productListingUpdateReqDTO){
         SellerListingReviewSummaryDTO sellerReviewSummary = sellerService.requestProductListingUpdate(listingId,productListingUpdateReqDTO);
         return ResponseEntity.ok(sellerReviewSummary);
@@ -90,14 +90,14 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(value = "/admin/product-listings/view-filtered-page")
+    @GetMapping(value = "/admin/view-filtered-page")
     public ResponseEntity<Page<AdminListingReviewSummaryDTO>> getAllProductListingReviewRequests(@ModelAttribute AdminListingReviewFilterReqDTO filterDTO){
         Page<AdminListingReviewSummaryDTO> pageResult= adminService.getAllProductListingReviewRequests(filterDTO);
         return ResponseEntity.ok(pageResult);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(value = "/admin/product-listings/listing/details")
+    @GetMapping(value = "/admin/listing-details")
     public ResponseEntity<ProductListingAdminViewDTO> showProductListingDetails(@RequestBody AdminListingReviewAuditDecisionDTO adminResponse){
         ProductListingAdminViewDTO reviewSummaryDTO = adminService.showProductListingDetails(adminResponse.getAuditId());
         return  ResponseEntity.ok(reviewSummaryDTO);
@@ -105,14 +105,14 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(value = "/admin/product-listings/listing/create/approve-request")
+    @PostMapping(value = "/admin/create-listing/approve")
     public ResponseEntity<AdminListingReviewSummaryDTO> handleProductListingCreateApproveRequest(@RequestBody AdminListingReviewAuditDecisionDTO adminResponse){
         AdminListingReviewSummaryDTO reviewSummaryDTO = adminService.handleCreateProductListingApproveRequest(adminResponse.getAuditId(), adminResponse.getReason());
         return  ResponseEntity.ok(reviewSummaryDTO);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(value = "/admin/product-listings/listing/update/approve-request")
+    @PostMapping(value = "/admin/update-listing/approve")
     public ResponseEntity<AdminListingReviewSummaryDTO> handleProductListingUpdateApproveRequest(@RequestBody AdminListingReviewAuditDecisionDTO adminResponse){
         AdminListingReviewSummaryDTO reviewSummaryDTO = adminService.handleUpdateProductListingApproveRequest(adminResponse.getAuditId(), adminResponse.getReason());
         return  ResponseEntity.ok(reviewSummaryDTO);
@@ -120,7 +120,7 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(value = "/admin/product-listings/listing/delete/approve-request")
+    @PostMapping(value = "/admin/delete-listing/approve")
     public ResponseEntity<AdminListingReviewSummaryDTO> handleProductListingDeleteApproveRequest(@RequestBody AdminListingReviewAuditDecisionDTO adminResponse){
         AdminListingReviewSummaryDTO reviewSummaryDTO = adminService.handleDeleteProductListingApproveRequest(adminResponse.getAuditId(), adminResponse.getReason());
         return  ResponseEntity.ok(reviewSummaryDTO);
@@ -128,7 +128,7 @@ public class ProductListingController {
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(value = "/admin/product-listings/listing/reject-request")
+    @PostMapping(value = "/admin/listing/reject-request")
     public ResponseEntity<AdminListingReviewSummaryDTO> handleProductListingRejectRequest(@RequestBody AdminListingReviewAuditDecisionDTO adminResponse){
         AdminListingReviewSummaryDTO reviewSummaryDTO = adminService.handleProductListingRejectRequest(adminResponse.getAuditId(), adminResponse.getReason());
         return  ResponseEntity.ok(reviewSummaryDTO);

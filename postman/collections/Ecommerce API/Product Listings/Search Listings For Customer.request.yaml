@@ -1,0 +1,7 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/product-listings/customers/listings/search?page=0&size=20&sort=createdAt,desc&keyword=phone'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

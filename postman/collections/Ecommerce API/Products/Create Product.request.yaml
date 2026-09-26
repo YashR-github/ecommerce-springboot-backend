@@ -1,0 +1,23 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/products/admin/create/product'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Demo Phone",
+      "shortDescription": "This is a sample short description with more than fifty characters.",
+      "longDescription": "Sample long description for the product.",
+      "brand": "DemoBrand",
+      "model": "X100",
+      "weightInGrams": 250,
+      "basePrice": 19999,
+      "baseImageUrl": "https://example.com/product.jpg",
+      "category": "ELECTRONICS"
+    }

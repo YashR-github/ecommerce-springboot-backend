@@ -4,12 +4,7 @@ package com.example.ecommerce_springboot.ecommerce.util;
 import com.example.ecommerce_springboot.ecommerce.dto.*;
 import com.example.ecommerce_springboot.ecommerce.enums.OrderStatus;
 import com.example.ecommerce_springboot.ecommerce.models.*;
-import com.example.ecommerce_springboot.ecommerce.repository.ProductRepository;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 public class ObjectDtoMapperUtil {
@@ -45,9 +40,9 @@ public class ObjectDtoMapperUtil {
     public static ProductListingCustomerResponseDTO toProductListingCustomerResponseDtO(ProductListing productListing, Integer quantityRemaining){
         ProductListingCustomerResponseDTO responseDTO = new ProductListingCustomerResponseDTO();
         responseDTO.setListingId(productListing.getId());
-        responseDTO.setSellerName(productListing.getListingCreator().getName());
-        responseDTO.setSellerID(productListing.getListingCreator().getId());
-        responseDTO.setSellerEmail(productListing.getListingCreator().getEmail());
+        responseDTO.setSellerName(productListing.getRequestedBy().getName());
+        responseDTO.setSellerID(productListing.getRequestedBy().getId());
+        responseDTO.setSellerEmail(productListing.getRequestedBy().getEmail());
         responseDTO.setCategory(productListing.getProduct().getCategory().toString());
         responseDTO.setBrand(productListing.getProduct().getBrand());
         responseDTO.setModel(productListing.getProduct().getModel());

@@ -1,0 +1,7 @@
+$kind: http-request
+method: DELETE
+url: '{{baseUrl}}/products/admin/delete/product/{{id}}'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

@@ -1,0 +1,16 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/product-listings/admin/product-listings/listing/update/approve-request'
+order: 10000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "auditId": 1,
+      "reason": "Approved"
+    }

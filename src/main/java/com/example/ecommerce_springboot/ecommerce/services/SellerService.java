@@ -52,13 +52,25 @@ public class SellerService {
 
     @Transactional
     public Page<SellerListingReviewSummaryDTO> getAllAssociatedListingReviewsFiltered(SellerProductListingsFilterReqDTO filterDTO) {
-        Specification<ListingReviewAudit> specification = new SellerListingReviewFilterSpecification(filterDTO);
-        Sort sort = "desc".equalsIgnoreCase(filterDTO.getSortOrder())
-                ? Sort.by(filterDTO.getSortBy()).descending()
-                : Sort.by(filterDTO.getSortBy()).ascending();
-        Pageable pageable = PageRequest.of(filterDTO.getPageNumber(),filterDTO.getPageSize(),sort);
         User user = authenticatedUserUtil.getCurrentUser();
-        Page<ListingReviewAudit> pageResult= listingReviewAuditRepository.findAllByRequestedByAndIsDeletedFalse(user,specification,pageable);
+        Specification<ListingReviewAudit> specification = new SellerListingReviewFilterSpecification(filterDTO).and((root, query, cb) ->
+                cb.equal(root.get("requestedBy"), user))
+                .and((root, query, cb) ->
+                        cb.isFalse(root.get("isDeleted")));;
+
+        String sortBy = filterDTO.getSortBy();
+
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "createdAt";
+        }
+
+        Sort sort = "desc".equalsIgnoreCase(filterDTO.getSortOrder())
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(filterDTO.getPageNumber(),filterDTO.getPageSize(),sort);
+
+        Page<ListingReviewAudit> pageResult= listingReviewAuditRepository.findAll(specification,pageable);
         return pageResult.map(ObjectDtoMapperUtil::toSellerListingReviewSummaryDTO);
     }
 
@@ -74,7 +86,7 @@ public class SellerService {
         User seller = userRepository.findByIdAndUserRoleAndIsDeletedFalse(user.getId(), UserRole.SELLER).orElseThrow(() -> new UnAuthorizedAccessException("User not authorized."));
 
         boolean exists = productListingRepository
-                .existsByProductAndListingCreatorAndListingStatusIn(
+                .existsByProductAndRequestedByAndListingStatusIn(
                         product,
                         seller,
                         List.of(ListingStatus.PENDING_APPROVAL, ListingStatus.ACTIVE)
@@ -85,7 +97,7 @@ public class SellerService {
         }
         ProductListing productListing = new ProductListing();
         productListing.setProduct(product);
-        productListing.setListingCreator(seller);
+        productListing.setRequestedBy(seller);
         productListing.setQuantityListed(quantity);
         productListing.setTitle(title);
         productListing.setDescription(description);
@@ -107,7 +119,7 @@ public class SellerService {
     public void requestProductListingDeletion(Long productListingId) {
         User user = authenticatedUserUtil.getCurrentUser();
         User seller = userRepository.findByIdAndUserRoleAndIsDeletedFalse(user.getId(), UserRole.SELLER).orElseThrow(() -> new UnAuthorizedAccessException("User not authorized."));
-        Optional<ProductListing> optionalProductListing = productListingRepository.findByListingCreatorAndIdAndIsDeletedFalse(seller, productListingId);
+        Optional<ProductListing> optionalProductListing = productListingRepository.findByRequestedByAndIdAndIsDeletedFalse(seller, productListingId);
         if (optionalProductListing.isEmpty()) {
             throw new ProductListingNotFoundException("No product listing found for the given id for the seller.");
         }
@@ -143,14 +155,14 @@ public class SellerService {
     @Transactional
     public SellerListingReviewSummaryDTO requestProductListingUpdate(Long listingId, ProductListingUpdateReqDTO updateDTO) {
         User user= authenticatedUserUtil.getCurrentUser();
-        ProductListing originalListing = productListingRepository.findByIdAndListingCreatorAndListingStatusAndIsDeletedFalse(listingId, user, ListingStatus.ACTIVE).orElseThrow(() -> new ProductListingNotFoundException("Product Listing Id provided is incorrect or not active."));
+        ProductListing originalListing = productListingRepository.findByIdAndRequestedByAndListingStatusAndIsDeletedFalse(listingId, user, ListingStatus.ACTIVE).orElseThrow(() -> new ProductListingNotFoundException("Product Listing Id provided is incorrect or not active."));
         ProductListing updatedProductListing = new ProductListing();
         if (updateDTO.getProductId() != null) {
             updatedProductListing.setProduct(productRepository.findByIdAndIsDeletedFalse(updateDTO.getProductId()).orElseThrow(() -> new ProductListingNotFoundException("Product Id provided is incorrect.")));
         } else {
             updatedProductListing.setProduct(originalListing.getProduct());
         }
-        updatedProductListing.setListingCreator(originalListing.getListingCreator());
+        updatedProductListing.setRequestedBy(originalListing.getRequestedBy());
         updatedProductListing.setRequestedAt(LocalDateTime.now());
         updatedProductListing.setTitle((updateDTO.getTitle() != null && !updateDTO.getTitle().isBlank()) ? updateDTO.getTitle() : originalListing.getTitle());
         updatedProductListing.setDescription((updateDTO.getDescription() != null && !updateDTO.getDescription().isBlank()) ? updateDTO.getDescription() : originalListing.getDescription());
@@ -181,7 +193,7 @@ public class SellerService {
             listingReviewAudit.setTitle(productListing.getTitle());
             listingReviewAudit.setRequestedAt(LocalDateTime.now());
             listingReviewAudit.setActionType(actionType);
-            listingReviewAudit.setRequestedBy(productListing.getListingCreator());
+            listingReviewAudit.setRequestedBy(productListing.getRequestedBy());
             listingReviewAudit.setReviewedBy(null);
             listingReviewAudit.setReviewStatus(ReviewStatus.PENDING);
             listingReviewAudit.setReason(" - ");

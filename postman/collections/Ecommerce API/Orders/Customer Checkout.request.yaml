@@ -1,0 +1,7 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/orders/customers/checkout'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

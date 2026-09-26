@@ -1,0 +1,22 @@
+$kind: http-request
+method: PATCH
+url: '{{baseUrl}}/product-listings/sellers/product-listing/update/{{listingId}}'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "productId": 1,
+      "quantity": 20,
+      "basePrice": 16999,
+      "title": "Updated Demo Listing",
+      "description": "Updated listing description",
+      "imageUrls": [
+        "https://example.com/listing-updated.jpg"
+      ]
+    }
